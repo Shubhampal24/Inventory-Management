@@ -338,8 +338,11 @@ const useWarehouseStore = create(
 
         /** Add a new Stock Movement (IN or OUT) — triggers full recompute */
         addMovement: (movement) => {
+          const rawId = (movement.materialId || '').trim()
+          const cleanId = rawId.includes(' - ') ? rawId.split(' - ')[0].trim() : (rawId.includes(' (') ? rawId.split(' (')[0].trim() : rawId)
           const newMov = {
             ...movement,
+            materialId: cleanId,
             id: `MOV${Date.now()}`,
             date: movement.date || new Date().toISOString().slice(0, 10),
           }

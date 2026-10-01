@@ -46,3 +46,34 @@ export function formatQty(qty, unit) {
 export const CATEGORIES = ["AC","CARPENTER","CIVIL","DECOR","ELECTRIC","FURNISHING","PLUMBER"]
 export const LEVELS = ["GL1","GL2","GL3","SL4","SL5","SL6"]
 export const UNITS = ["PCS","MTR","SQF","BAG","KG","LTR","SHT","ROL","NOS","BOX","CAN","BTL"]
+
+/**
+ * Safely exports structured data to a CSV file with:
+ * - Proper RFC 4180 CSV escaping (handling commas, double quotes, linebreaks)
+ * - UTF-8 Byte Order Mark (BOM: \uFEFF) for 100% correct character rendering in Microsoft Excel
+ * - Clean download trigger and memory cleanup
+ */
+export function exportToCSV(filename, headers, rows) {
+  const escapeCell = (val) => {
+    if (val === null || val === undefined) return '""'
+    const str = String(val)
+    if (str.includes('"') || str.includes(',') || str.includes('\n') || str.includes('\r')) {
+      return `"${str.replace(/"/g, '""')}"`
+    }
+    return `"${str}"`
+  }
+
+  const headerLine = headers.map(escapeCell).join(",")
+  const rowLines = rows.map(r => r.map(escapeCell).join(","))
+  const csvContent = "\uFEFF" + [headerLine, ...rowLines].join("\r\n")
+
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement("a")
+  a.href = url
+  a.setAttribute("download", filename.endsWith(".csv") ? filename : `${filename}.csv`)
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}

@@ -8,8 +8,8 @@ import { Label } from "@/components/ui/input"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
 import { useToast } from "@/components/ui/toast"
-import { CATEGORIES, UNITS } from "@/lib/utils"
-import { Plus, Search, Pencil, Trash2, Database, Info } from "lucide-react"
+import { CATEGORIES, UNITS, exportToCSV } from "@/lib/utils"
+import { Plus, Search, Pencil, Trash2, Database, Info, Download } from "lucide-react"
 
 const emptyForm = { id: "", name: "", description: "", category: "", unit: "PCS", reorderLevel: 10 }
 
@@ -55,6 +55,28 @@ export default function MaterialMaster() {
     toast({ title: "Material deleted", variant: "warning" })
   }
 
+  const exportCSV = () => {
+    const headers = [
+      "Material ID",
+      "Material Name",
+      "Description",
+      "Category",
+      "Unit",
+      "Reorder Level"
+    ]
+    const rows = filtered.map(m => [
+      m.id,
+      m.name || m.description || "",
+      m.description || "",
+      m.category || "",
+      m.unit || "PCS",
+      m.reorderLevel ?? 10
+    ])
+    const dateStr = new Date().toISOString().slice(0, 10)
+    exportToCSV(`material_master_${dateStr}.csv`, headers, rows)
+    toast({ title: "Materials exported", description: `${filtered.length} materials exported to CSV.`, variant: "success" })
+  }
+
   return (
     <div className="space-y-4 animate-fade-in-up">
       <Card className="glass">
@@ -64,7 +86,14 @@ export default function MaterialMaster() {
               <Database size={16} className="text-primary"/>
               Material Master ({filtered.length})
             </CardTitle>
-            <Button onClick={openAdd} className="w-full sm:w-auto"><Plus size={15}/> Add Material</Button>
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <Button size="sm" variant="outline" onClick={exportCSV} className="flex-1 sm:flex-none">
+                <Download size={13}/> Export CSV
+              </Button>
+              <Button size="sm" onClick={openAdd} className="flex-1 sm:flex-none">
+                <Plus size={15}/> Add Material
+              </Button>
+            </div>
           </div>
           {/* Filters */}
           <div className="flex flex-wrap gap-2 mt-2">

@@ -8,9 +8,9 @@ import { Label } from "@/components/ui/input"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
 import { useToast } from "@/components/ui/toast"
-import { LEVELS, CATEGORIES } from "@/lib/utils"
+import { LEVELS, CATEGORIES, exportToCSV } from "@/lib/utils"
 import { computeLocationId } from "@/lib/store/useWarehouseStore"
-import { Plus, Search, MapPin, Link, Unlink } from "lucide-react"
+import { Plus, Search, MapPin, Link, Unlink, Download } from "lucide-react"
 
 export default function LocationMaster() {
   const locations = useWarehouseStore(s => s.locations ?? [])
@@ -74,6 +74,38 @@ export default function LocationMaster() {
     setGaMat(""); setGaRack(""); setGaBay(""); setGaLevel(""); setGaSlot("")
   }
 
+  const exportCSV = () => {
+    const headers = [
+      "Rack",
+      "Bay",
+      "Level",
+      "Slot",
+      "Location ID",
+      "Status",
+      "Material ID",
+      "Material Description",
+      "Category",
+      "Quantity",
+      "Unit"
+    ]
+    const rows = filtered.map(l => [
+      l.rack,
+      l.bay,
+      l.level,
+      l.slot,
+      l.locationId,
+      l.status,
+      l.materialId || "",
+      l.materialDesc || "",
+      l.category || "",
+      l.quantity || 0,
+      l.unit || ""
+    ])
+    const dateStr = new Date().toISOString().slice(0, 10)
+    exportToCSV(`location_master_${dateStr}.csv`, headers, rows)
+    toast({ title: "Locations exported", description: `${filtered.length} locations exported to CSV.`, variant: "success" })
+  }
+
   return (
     <div className="space-y-4 animate-fade-in-up">
       <Card className="glass">
@@ -84,8 +116,11 @@ export default function LocationMaster() {
               Location Master ({filtered.length} shown)
             </CardTitle>
             <div className="flex flex-wrap gap-2 w-full sm:w-auto">
-              <Button onClick={() => setGlobalAssignOpen(true)} className="flex-1 sm:flex-none bg-indigo-600 hover:bg-indigo-700 text-white border-none"><Link size={15}/> Assign Material</Button>
-              <Button onClick={() => setAddOpen(true)} className="flex-1 sm:flex-none"><Plus size={15}/> Add Location</Button>
+              <Button size="sm" variant="outline" onClick={exportCSV} className="flex-1 sm:flex-none">
+                <Download size={13}/> Export CSV
+              </Button>
+              <Button size="sm" onClick={() => setGlobalAssignOpen(true)} className="flex-1 sm:flex-none bg-indigo-600 hover:bg-indigo-700 text-white border-none"><Link size={15}/> Assign Material</Button>
+              <Button size="sm" onClick={() => setAddOpen(true)} className="flex-1 sm:flex-none"><Plus size={15}/> Add Location</Button>
             </div>
           </div>
           <div className="flex flex-wrap gap-2 mt-2">

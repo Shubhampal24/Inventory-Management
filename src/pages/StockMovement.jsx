@@ -9,16 +9,27 @@ import { Textarea } from "@/components/ui/input"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
 import { useToast } from "@/components/ui/toast"
-import { formatDate, UNITS } from "@/lib/utils"
-import { Plus, ArrowUpCircle, ArrowDownCircle, Search, Trash2, ArrowLeftRight } from "lucide-react"
+import { cn, formatDate, UNITS, exportToCSV } from "@/lib/utils"
+import { Plus, ArrowUpCircle, ArrowDownCircle, Search, Trash2, ArrowLeftRight, X, Download } from "lucide-react"
 import { computeLocationId } from "@/lib/store/useWarehouseStore"
 
 
 
+const extractMaterialId = (text) => {
+  if (!text) return ""
+  const trimmed = text.trim()
+  const match = trimmed.match(/^(MAT\d+)/i)
+  if (match) return match[1].toUpperCase()
+  if (trimmed.includes(" - ")) return trimmed.split(" - ")[0].trim().toUpperCase()
+  if (trimmed.includes(" (")) return trimmed.split(" (")[0].trim().toUpperCase()
+  return trimmed.toUpperCase()
+}
+
 export default function StockMovement() {
   const enrichedMovements = useWarehouseStore(s => s.enrichedMovements ?? [])
-  const materialMasterBase = useWarehouseStore(s => s.materialMasterBase ?? [])
-  const locationMasterBase = useWarehouseStore(s => s.locationMasterBase ?? [])
+  const materials = useWarehouseStore(s => s.materialMasterBase ?? [])
+  const locations = useWarehouseStore(s => s.locations ?? [])
+  const inventory = useWarehouseStore(s => s.inventory ?? [])
   const addMovement = useWarehouseStore(s => s.addMovement)
   const deleteMovement = useWarehouseStore(s => s.deleteMovement)
   const { toast } = useToast()
@@ -29,8 +40,15 @@ export default function StockMovement() {
   const currentUser = useWarehouseStore(s => s.currentUser || "")
   const [form, setForm] = React.useState({
     date: new Date().toISOString().slice(0, 10),
-    materialId: "", locationId: "", type: "IN",
-    quantity: "", unit: "", reference: "", user: currentUser, notes: ""
+    materialId: "",
+    materialText: "",
+    locationId: "",
+    type: "IN",
+    quantity: "",
+    unit: "",
+    reference: "",
+    user: currentUser,
+    notes: ""
   })
 
   React.useEffect(() => {
@@ -38,6 +56,11 @@ export default function StockMovement() {
       setForm(f => ({ ...f, user: f.user || currentUser }))
     }
   }, [open, currentUser])
+
+  const selectedMat = React.useMemo(() => {
+    if (!form.materialId) return null
+    return materials.find(m => m.id === form.materialId) || null
+  }, [materials, form.materialId])
 
   const filtered = React.useMemo(() => {
     return [...enrichedMovements].reverse().filter(m => {
@@ -48,30 +71,204 @@ export default function StockMovement() {
     })
   }, [enrichedMovements, search, typeFilter])
 
-  // Auto-fill unit and location when material selected
-  const handleMaterialChange = (matId) => {
-    const mat = materialMasterBase.find(m => m.id === matId)
-    const loc = locationMasterBase.find(l => l.materialId === matId)
-    setForm(f => ({ ...f, materialId: matId, unit: mat?.unit || "", locationId: loc?.locationId || "" }))
+  // Compute live available stock for selected location & material
+  const currentAvailableStock = React.useMemo(() => {
+    if (!form.locationId) return 0
+    if (form.materialId) {
+      const invItem = inventory.find(i => i.materialId === form.materialId && i.locationId === form.locationId)
+      if (invItem) return invItem.currentStock
+    }
+    const loc = locations.find(l => l.locationId === form.locationId)
+    return loc ? Number(loc.quantity || 0) : 0
+  }, [inventory, locations, form.materialId, form.locationId])
+
+  // Context-aware location options for IN vs OUT
+  const locationOptions = React.useMemo(() => {
+    if (form.type === "OUT") {
+      // For OUT: prioritize locations holding stock of selected material
+      if (form.materialId) {
+        const matchingWithStock = locations.filter(l => 
+          (l.materialId === form.materialId || inventory.some(i => i.materialId === form.materialId && i.locationId === l.locationId && i.currentStock > 0)) &&
+          (Number(l.quantity) > 0 || l.status === "Occupied")
+        )
+        if (matchingWithStock.length > 0) return matchingWithStock
+
+        // If no stock anywhere, show the primary assigned location with 0 stock indication
+        const assigned = locations.filter(l => l.materialId === form.materialId)
+        if (assigned.length > 0) return assigned
+      }
+      // If no material selected yet, show any location currently holding stock
+      return locations.filter(l => Number(l.quantity) > 0 || l.status === "Occupied")
+    } else {
+      // For IN: show assigned location first, then available empty slots
+      if (form.materialId) {
+        const assigned = locations.filter(l => l.materialId === form.materialId)
+        const available = locations.filter(l => l.status === "Available" && l.materialId !== form.materialId)
+        return [...assigned, ...available]
+      }
+      return locations
+    }
+  }, [locations, inventory, form.type, form.materialId])
+
+  // Clear/cancel Material -> also clears Location and Unit
+  const handleMaterialCancel = () => {
+    setForm(f => ({
+      ...f,
+      materialId: "",
+      materialText: "",
+      locationId: "",
+      unit: ""
+    }))
+  }
+
+  // Clear/cancel Location -> also clears Material and Unit (per user requirement)
+  const handleLocationCancel = () => {
+    setForm(f => ({
+      ...f,
+      locationId: "",
+      materialId: "",
+      materialText: "",
+      unit: ""
+    }))
+  }
+
+  // Auto-fill unit and location when material selected, and show name in field
+  const handleMaterialChange = (rawVal) => {
+    if (!rawVal || rawVal.trim() === "") {
+      handleMaterialCancel()
+      return
+    }
+
+    const cleanId = extractMaterialId(rawVal)
+    const mat = materials.find(m => 
+      m.id.toUpperCase() === cleanId || 
+      (m.name || m.description)?.toUpperCase() === rawVal.trim().toUpperCase()
+    )
+
+    if (mat) {
+      const fullText = `${mat.id} - ${mat.name || mat.description}`
+      let loc = null
+      if (form.type === "OUT") {
+        loc = locations.find(l => 
+          (l.materialId === mat.id || inventory.some(i => i.materialId === mat.id && i.locationId === l.locationId && i.currentStock > 0)) &&
+          (Number(l.quantity) > 0 || l.status === "Occupied")
+        )
+      }
+      if (!loc) {
+        loc = locations.find(l => l.materialId === mat.id)
+      }
+
+      setForm(f => ({
+        ...f,
+        materialId: mat.id,
+        materialText: fullText,
+        unit: mat.unit || f.unit || "PCS",
+        locationId: loc?.locationId || f.locationId || ""
+      }))
+    } else {
+      // User is currently typing
+      setForm(f => ({
+        ...f,
+        materialId: cleanId,
+        materialText: rawVal
+      }))
+    }
+  }
+
+  // Auto-fill material when location selected; if location is cleared, clear material automatically
+  const handleLocationChange = (locId) => {
+    if (!locId || locId.trim() === "") {
+      handleLocationCancel()
+      return
+    }
+
+    const loc = locations.find(l => l.locationId === locId)
+    setForm(f => {
+      const next = { ...f, locationId: locId }
+      if (loc?.materialId) {
+        const cleanMatId = extractMaterialId(loc.materialId)
+        const mat = materials.find(m => m.id === cleanMatId)
+        next.materialId = cleanMatId
+        next.materialText = mat ? `${mat.id} - ${mat.name || mat.description}` : cleanMatId
+        next.unit = loc.unit || mat?.unit || next.unit || "PCS"
+      }
+      return next
+    })
+  }
+
+  // Handle switching between IN and OUT
+  const handleTypeChange = (newType) => {
+    setForm(f => {
+      const next = { ...f, type: newType }
+      if (newType === "OUT" && f.materialId) {
+        const stockLoc = locations.find(l => 
+          (l.materialId === f.materialId || inventory.some(i => i.materialId === f.materialId && i.locationId === l.locationId && i.currentStock > 0)) &&
+          (Number(l.quantity) > 0 || l.status === "Occupied")
+        )
+        if (stockLoc) next.locationId = stockLoc.locationId
+      } else if (newType === "IN" && f.materialId) {
+        const assignedLoc = locations.find(l => l.materialId === f.materialId)
+        if (assignedLoc) next.locationId = assignedLoc.locationId
+      }
+      return next
+    })
   }
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    if (!form.materialId || !form.locationId || !form.quantity || !form.type) {
-      toast({ title: "Missing fields", description: "Material, location, quantity and type are required.", variant: "destructive" })
+    const cleanMatId = extractMaterialId(form.materialId || form.materialText)
+    const qty = parseFloat(form.quantity)
+    if (!cleanMatId || !form.locationId || !form.quantity || isNaN(qty) || qty <= 0) {
+      toast({ title: "Invalid details", description: "Please enter a valid material, location, and positive quantity.", variant: "destructive" })
       return
+    }
+    if (form.type === "OUT" && qty > currentAvailableStock) {
+      if (!confirm(`Warning: You are issuing ${qty} ${form.unit}, but only ${currentAvailableStock} ${form.unit} are available at ${form.locationId}. Proceed anyway?`)) {
+        return
+      }
     }
     addMovement({
       ...form,
-      quantity: parseFloat(form.quantity),
+      materialId: cleanMatId,
+      quantity: qty,
     })
-    toast({ title: "Movement recorded", description: `${form.type} of ${form.quantity} ${form.unit} added successfully.`, variant: "success" })
+    toast({ title: "Movement recorded", description: `${form.type} of ${qty} ${form.unit} added successfully.`, variant: "success" })
     setOpen(false)
-    setForm({ date: new Date().toISOString().slice(0, 10), materialId: "", locationId: "", type: "IN", quantity: "", unit: "", reference: "", user: "Sanika", notes: "" })
+    setForm({ date: new Date().toISOString().slice(0, 10), materialId: "", materialText: "", locationId: "", type: "IN", quantity: "", unit: "", reference: "", user: currentUser || "User", notes: "" })
   }
 
   const totalIn = enrichedMovements.filter(m => m.type === "IN").reduce((s, m) => s + m.quantity, 0)
   const totalOut = enrichedMovements.filter(m => m.type === "OUT").reduce((s, m) => s + m.quantity, 0)
+
+  const exportCSV = () => {
+    const headers = [
+      "Date",
+      "Material ID",
+      "Material Description",
+      "Location ID",
+      "Type",
+      "Quantity",
+      "Unit",
+      "Reference",
+      "User",
+      "Notes"
+    ]
+    const rows = filtered.map(m => [
+      m.date,
+      m.materialId,
+      m.materialDesc || "",
+      m.locationId,
+      m.type,
+      m.quantity,
+      m.unit || "",
+      m.reference || "",
+      m.user || "",
+      m.notes || ""
+    ])
+    const dateStr = new Date().toISOString().slice(0, 10)
+    exportToCSV(`stock_movements_${dateStr}.csv`, headers, rows)
+    toast({ title: "Movements exported", description: `${filtered.length} transactions exported to CSV.`, variant: "success" })
+  }
 
   return (
     <div className="space-y-4 animate-fade-in-up">
@@ -98,9 +295,14 @@ export default function StockMovement() {
               <ArrowLeftRight size={16} className="text-primary" />
               Stock Movements ({filtered.length})
             </CardTitle>
-            <Button onClick={() => setOpen(true)} className="w-full sm:w-auto">
-              <Plus size={15}/> Add Movement
-            </Button>
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <Button size="sm" variant="outline" onClick={exportCSV} className="flex-1 sm:flex-none">
+                <Download size={13} /> Export CSV
+              </Button>
+              <Button size="sm" onClick={() => setOpen(true)} className="flex-1 sm:flex-none">
+                <Plus size={15} /> Add Movement
+              </Button>
+            </div>
           </div>
           <div className="flex flex-wrap gap-2 mt-2">
             <div className="relative flex-1 min-w-[200px]">
@@ -190,13 +392,13 @@ export default function StockMovement() {
                 {["IN","OUT"].map(t => (
                   <button
                     key={t} type="button"
-                    onClick={() => setForm(f => ({ ...f, type: t }))}
+                    onClick={() => handleTypeChange(t)}
                     className={`flex-1 py-2.5 text-sm font-bold transition-all ${form.type === t
                       ? t === "IN" ? "bg-emerald-500/20 text-emerald-400 border-r border-emerald-500/30"
                                     : "bg-red-500/20 text-red-400"
                       : "text-muted-foreground hover:bg-secondary/50"}`}
                   >
-                    {t === "IN" ? "⬆ IN" : "⬇ OUT"}
+                    {t === "IN" ? "⬆ IN (Receive Stock)" : "⬇ OUT (Issue Stock)"}
                   </button>
                 ))}
               </div>
@@ -214,42 +416,122 @@ export default function StockMovement() {
             </div>
 
             <div className="space-y-1.5">
-              <Label>Material <span className="text-destructive">*</span></Label>
-              <Input 
-                list="sm-materials"
-                value={form.materialId}
-                onChange={e => handleMaterialChange(e.target.value.toUpperCase())}
-                placeholder="Type or select material ID..."
-                required
-              />
+              <div className="flex items-center justify-between">
+                <Label>Material <span className="text-destructive">*</span></Label>
+                {selectedMat && (
+                  <span className="text-[11px] font-medium text-primary truncate max-w-[220px]">
+                    {selectedMat.name || selectedMat.description}
+                  </span>
+                )}
+              </div>
+              <div className="relative">
+                <Input 
+                  list="sm-materials"
+                  value={form.materialText || form.materialId}
+                  onChange={e => handleMaterialChange(e.target.value)}
+                  onBlur={() => {
+                    if (selectedMat) {
+                      setForm(f => ({ ...f, materialText: `${selectedMat.id} - ${selectedMat.name || selectedMat.description}` }))
+                    }
+                  }}
+                  placeholder="Select material ID or name..."
+                  className="pr-8"
+                  required
+                />
+                {(form.materialText || form.materialId) && (
+                  <button
+                    type="button"
+                    onClick={handleMaterialCancel}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 transition-colors"
+                    title="Clear material and location"
+                  >
+                    <X size={14} />
+                  </button>
+                )}
+              </div>
               <datalist id="sm-materials">
-                {materialMasterBase.map(m => (
-                  <option key={m.id} value={m.id}>{m.name || m.description}</option>
+                {materials.map(m => (
+                  <option 
+                    key={m.id} 
+                    value={`${m.id} - ${m.name || m.description}`}
+                  >
+                    {m.category ? `${m.category} · ` : ""}{m.unit ? `Unit: ${m.unit}` : ""}
+                  </option>
                 ))}
               </datalist>
             </div>
 
             <div className="space-y-1.5">
               <Label>Location ID <span className="text-destructive">*</span></Label>
-              <Input 
-                list="sm-locations"
-                value={form.locationId}
-                onChange={e => setForm(f => ({ ...f, locationId: e.target.value.toUpperCase() }))}
-                placeholder="e.g. R01-B01-GL1-A1" 
-                className="font-mono" 
-                required 
-              />
+              <div className="relative">
+                <Input 
+                  list="sm-locations"
+                  value={form.locationId}
+                  onChange={e => handleLocationChange(e.target.value.toUpperCase())}
+                  placeholder="e.g. R01-B01-GL1-A" 
+                  className="font-mono uppercase pr-8" 
+                  required 
+                />
+                {form.locationId && (
+                  <button
+                    type="button"
+                    onClick={handleLocationCancel}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 transition-colors"
+                    title="Clear location and material"
+                  >
+                    <X size={14} />
+                  </button>
+                )}
+              </div>
               <datalist id="sm-locations">
-                {locationMasterBase.map(l => (
-                  <option key={l.locationId} value={l.locationId}>{l.status}</option>
-                ))}
+                {locationOptions.map(l => {
+                  const invItem = inventory.find(i => i.locationId === l.locationId && (!form.materialId || i.materialId === form.materialId))
+                  const stock = invItem ? invItem.currentStock : Number(l.quantity || 0)
+                  return (
+                    <option 
+                      key={l.locationId} 
+                      value={l.locationId}
+                    >
+                      {form.type === "OUT"
+                        ? `Stock: ${stock} ${l.unit || form.unit || "PCS"} · ${l.materialDesc || l.materialId || "Occupied"}`
+                        : l.materialId === form.materialId 
+                          ? `Primary Assigned for ${form.materialId}` 
+                          : l.status === "Available" 
+                            ? `Available (Empty slot · Rack ${l.rack})` 
+                            : `${l.status} · ${l.materialDesc || l.materialId || ""}`}
+                    </option>
+                  )
+                })}
               </datalist>
+              <p className="text-[11px] text-muted-foreground">
+                {form.type === "OUT"
+                  ? form.materialId
+                    ? "Auto-filled location with available stock. Select another if issuing from a different bay/slot."
+                    : "Showing locations currently holding stock to issue from."
+                  : form.materialId
+                    ? "Auto-filled primary assigned location. Select an empty slot if placing in another rack."
+                    : "Showing assigned location and available empty rack slots."}
+              </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label>Quantity <span className="text-destructive">*</span></Label>
-                <Input type="number" min="0" step="0.01" value={form.quantity} onChange={e => setForm(f => ({ ...f, quantity: e.target.value }))} required />
+                <Input 
+                  type="text" 
+                  inputMode="decimal"
+                  value={form.quantity} 
+                  onChange={e => {
+                    const val = e.target.value
+                    if (val === "" || /^[0-9]*\.?[0-9]*$/.test(val)) {
+                      setForm(f => ({ ...f, quantity: val }))
+                    }
+                  }} 
+                  placeholder="Enter quantity (e.g. 10)" 
+                  className="font-mono text-sm font-semibold"
+                  autoComplete="off"
+                  required 
+                />
               </div>
               <div className="space-y-1.5">
                 <Label>Unit</Label>
@@ -259,6 +541,24 @@ export default function StockMovement() {
                 </Select>
               </div>
             </div>
+
+            {/* Available stock indicator for OUT transactions */}
+            {form.type === "OUT" && form.locationId && (
+              <div className="rounded-lg p-2.5 bg-secondary/40 border border-border/60 flex items-center justify-between text-xs animate-fade-in-up">
+                <span className="text-muted-foreground">Available Stock at {form.locationId}:</span>
+                <span className={cn(
+                  "font-mono font-bold",
+                  currentAvailableStock > 0 ? "text-emerald-500 dark:text-emerald-400" : "text-red-500 dark:text-red-400"
+                )}>
+                  {currentAvailableStock} {form.unit || "PCS"}
+                </span>
+              </div>
+            )}
+            {form.type === "OUT" && form.quantity && parseFloat(form.quantity) > currentAvailableStock && (
+              <p className="text-xs text-red-500 dark:text-red-400 font-medium px-1 animate-fade-in-up">
+                ⚠️ Warning: Quantity ({form.quantity}) exceeds available stock ({currentAvailableStock} {form.unit})
+              </p>
+            )}
 
             <div className="space-y-1.5">
               <Label>Reference (PO / SO number)</Label>

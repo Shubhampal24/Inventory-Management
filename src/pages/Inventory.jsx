@@ -5,13 +5,15 @@ import { StockBadge, CategoryBadge, LocationBadge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
-import { CATEGORIES } from "@/lib/utils"
+import { CATEGORIES, exportToCSV } from "@/lib/utils"
+import { useToast } from "@/components/ui/toast"
 import { Search, Download, Filter, Package } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 
 export default function Inventory() {
   const inventory = useWarehouseStore(s => s.inventory ?? [])
   const navigate = useNavigate()
+  const { toast } = useToast()
 
   const [search, setSearch] = React.useState("")
   const [catFilter, setCatFilter] = React.useState("all")
@@ -35,12 +37,35 @@ export default function Inventory() {
   }, [inventory, search, catFilter, statusFilter, sortBy])
 
   const exportCSV = () => {
-    const headers = ["Material ID","Description","Category","Location","Stock IN","Stock OUT","Current","Unit","Reorder","Status"]
-    const rows = filtered.map(i => [i.materialId,i.materialDesc,i.category,i.locationId,i.stockIn,i.stockOut,i.currentStock,i.unit,i.reorderLevel,i.status])
-    const csv = [headers, ...rows].map(r => r.join(",")).join("\n")
-    const blob = new Blob([csv], { type: "text/csv" })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement("a"); a.href = url; a.download = "inventory.csv"; a.click()
+    const headers = [
+       "Material ID",
+       "Material Description",
+       "Category",
+       "Location ID",
+       "Opening Stock",
+       "Stock IN",
+       "Stock OUT",
+       "Current Stock",
+       "Unit",
+       "Reorder Level",
+       "Status"
+    ]
+    const rows = filtered.map(i => [
+      i.materialId,
+      i.materialDesc || "",
+      i.category || "",
+      i.locationId || "",
+      i.openingStock ?? 0,
+      i.stockIn ?? 0,
+      i.stockOut ?? 0,
+      Number(i.currentStock ?? 0).toFixed(2),
+      i.unit || "PCS",
+      i.reorderLevel ?? 0,
+      i.status || "OK"
+    ])
+    const dateStr = new Date().toISOString().slice(0, 10)
+    exportToCSV(`inventory_export_${dateStr}.csv`, headers, rows)
+    toast({ title: "Inventory exported", description: `${filtered.length} items exported to CSV.`, variant: "success" })
   }
 
   const stats = React.useMemo(() => ({
