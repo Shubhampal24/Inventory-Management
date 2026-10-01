@@ -685,7 +685,7 @@ const useWarehouseStore = create(
       }
     },
     {
-      name: 'warehouse-store',
+      name: 'warehouse-store-v2',
       // Only persist raw base data, not derived (derived is recomputed on load)
       partialize: (state) => ({
         locationMasterBase: state.locationMasterBase,

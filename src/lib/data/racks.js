@@ -2,8 +2,8 @@ export const racks = [
   {
     "id": "R01",
     "type": "Pallet Rack",
-    "description": "",
-    "bayCount": 1,
+    "description": "Rack 1 (4 Bays, 6 Levels)",
+    "bayCount": 4,
     "levels": [
       "GL1",
       "GL2",
@@ -13,14 +13,14 @@ export const racks = [
       "SL6"
     ],
     "slots": [],
-    "side": "Single-sided",
+    "side": "Double-sided",
     "status": "Verified / Active"
   },
   {
     "id": "R02",
     "type": "Pallet Rack",
-    "description": "",
-    "bayCount": 1,
+    "description": "Rack 2 (4 Bays, 6 Levels)",
+    "bayCount": 4,
     "levels": [
       "GL1",
       "GL2",
@@ -30,14 +30,14 @@ export const racks = [
       "SL6"
     ],
     "slots": [],
-    "side": "Single-sided",
+    "side": "Double-sided",
     "status": "Verified / Active"
   },
   {
     "id": "R03",
     "type": "Pallet Rack",
-    "description": "",
-    "bayCount": 1,
+    "description": "Rack 3 (4 Bays, 6 Levels)",
+    "bayCount": 4,
     "levels": [
       "GL1",
       "GL2",
@@ -47,14 +47,14 @@ export const racks = [
       "SL6"
     ],
     "slots": [],
-    "side": "Single-sided",
+    "side": "Double-sided",
     "status": "Verified / Active"
   },
   {
     "id": "R04",
     "type": "Pallet Rack",
-    "description": "",
-    "bayCount": 1,
+    "description": "Rack 4 (4 Bays, 6 Levels)",
+    "bayCount": 4,
     "levels": [
       "GL1",
       "GL2",
@@ -64,14 +64,14 @@ export const racks = [
       "SL6"
     ],
     "slots": [],
-    "side": "Single-sided",
+    "side": "Double-sided",
     "status": "Verified / Active"
   },
   {
     "id": "R05",
     "type": "Pallet Rack",
-    "description": "",
-    "bayCount": 1,
+    "description": "Rack 5 (4 Bays, 6 Levels)",
+    "bayCount": 4,
     "levels": [
       "GL1",
       "GL2",
@@ -81,14 +81,14 @@ export const racks = [
       "SL6"
     ],
     "slots": [],
-    "side": "Single-sided",
+    "side": "Double-sided",
     "status": "Verified / Active"
   },
   {
     "id": "R06",
     "type": "Pallet Rack",
-    "description": "",
-    "bayCount": 1,
+    "description": "Rack 6 (4 Bays, 6 Levels)",
+    "bayCount": 4,
     "levels": [
       "GL1",
       "GL2",
@@ -98,14 +98,14 @@ export const racks = [
       "SL6"
     ],
     "slots": [],
-    "side": "Single-sided",
+    "side": "Double-sided",
     "status": "Verified / Active"
   },
   {
     "id": "R07",
     "type": "Pallet Rack",
-    "description": "",
-    "bayCount": 1,
+    "description": "Rack 7 (4 Bays, 6 Levels)",
+    "bayCount": 4,
     "levels": [
       "GL1",
       "GL2",
@@ -115,14 +115,14 @@ export const racks = [
       "SL6"
     ],
     "slots": [],
-    "side": "Single-sided",
+    "side": "Double-sided",
     "status": "Verified / Active"
   },
   {
     "id": "R08",
     "type": "Pallet Rack",
-    "description": "",
-    "bayCount": 1,
+    "description": "Rack 8 (4 Bays, 6 Levels)",
+    "bayCount": 4,
     "levels": [
       "GL1",
       "GL2",
@@ -132,14 +132,14 @@ export const racks = [
       "SL6"
     ],
     "slots": [],
-    "side": "Single-sided",
+    "side": "Double-sided",
     "status": "Verified / Active"
   },
   {
     "id": "R09",
     "type": "Pallet Rack",
-    "description": "",
-    "bayCount": 1,
+    "description": "Rack 9 (4 Bays, 6 Levels)",
+    "bayCount": 4,
     "levels": [
       "GL1",
       "GL2",
@@ -149,14 +149,14 @@ export const racks = [
       "SL6"
     ],
     "slots": [],
-    "side": "Single-sided",
+    "side": "Double-sided",
     "status": "Verified / Active"
   },
   {
     "id": "R10",
     "type": "Pallet Rack",
-    "description": "",
-    "bayCount": 1,
+    "description": "Rack 10 (4 Bays, 6 Levels)",
+    "bayCount": 4,
     "levels": [
       "GL1",
       "GL2",
@@ -166,14 +166,14 @@ export const racks = [
       "SL6"
     ],
     "slots": [],
-    "side": "Single-sided",
+    "side": "Double-sided",
     "status": "Verified / Active"
   },
   {
     "id": "R11",
     "type": "Pallet Rack",
-    "description": "",
-    "bayCount": 1,
+    "description": "Rack 11 (4 Bays, 6 Levels)",
+    "bayCount": 4,
     "levels": [
       "GL1",
       "GL2",
@@ -183,107 +183,7 @@ export const racks = [
       "SL6"
     ],
     "slots": [],
-    "side": "Single-sided",
+    "side": "Double-sided",
     "status": "Verified / Active"
-  },
-  {
-    "id": "Level Code",
-    "type": "Pallet Rack",
-    "description": "",
-    "bayCount": 1,
-    "levels": [],
-    "slots": [],
-    "side": "Single-sided",
-    "status": "Active"
-  },
-  {
-    "id": "GL1",
-    "type": "Pallet Rack",
-    "description": "",
-    "bayCount": 1,
-    "levels": [],
-    "slots": [],
-    "side": "Single-sided",
-    "status": "Active"
-  },
-  {
-    "id": "GL2",
-    "type": "Pallet Rack",
-    "description": "",
-    "bayCount": 1,
-    "levels": [],
-    "slots": [],
-    "side": "Single-sided",
-    "status": "Active"
-  },
-  {
-    "id": "GL3",
-    "type": "Pallet Rack",
-    "description": "",
-    "bayCount": 1,
-    "levels": [],
-    "slots": [],
-    "side": "Single-sided",
-    "status": "Active"
-  },
-  {
-    "id": "SL1",
-    "type": "Pallet Rack",
-    "description": "",
-    "bayCount": 1,
-    "levels": [],
-    "slots": [],
-    "side": "Single-sided",
-    "status": "Active"
-  },
-  {
-    "id": "SL2",
-    "type": "Pallet Rack",
-    "description": "",
-    "bayCount": 1,
-    "levels": [],
-    "slots": [],
-    "side": "Single-sided",
-    "status": "Active"
-  },
-  {
-    "id": "SL3",
-    "type": "Pallet Rack",
-    "description": "",
-    "bayCount": 1,
-    "levels": [],
-    "slots": [],
-    "side": "Single-sided",
-    "status": "Active"
-  },
-  {
-    "id": "SL4",
-    "type": "Pallet Rack",
-    "description": "",
-    "bayCount": 1,
-    "levels": [],
-    "slots": [],
-    "side": "Single-sided",
-    "status": "Active"
-  },
-  {
-    "id": "SL5",
-    "type": "Pallet Rack",
-    "description": "",
-    "bayCount": 1,
-    "levels": [],
-    "slots": [],
-    "side": "Single-sided",
-    "status": "Active"
-  },
-  {
-    "id": "SL6",
-    "type": "Pallet Rack",
-    "description": "",
-    "bayCount": 1,
-    "levels": [],
-    "slots": [],
-    "side": "Single-sided",
-    "status": "Active"
   }
 ]
