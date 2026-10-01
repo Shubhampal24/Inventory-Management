@@ -186,4 +186,4 @@ export const racks = [
     "side": "Double-sided",
     "status": "Verified / Active"
   }
-]
+];

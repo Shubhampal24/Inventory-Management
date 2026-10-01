@@ -342,4 +342,4 @@ export const materials = [
     "unit": "PCS",
     "reorderLevel": 10.0
   }
-]
+];
