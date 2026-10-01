@@ -473,7 +473,7 @@ const useWarehouseStore = create(
               racks: state.racks
             }
             
-            const response = await fetch("https://script.google.com/macros/s/AKfycby7YYTUYBerOTcO7_HkbZewOOIClecLhcOdmKYoowBtTjkd_bJYtfaIVY68rLik0ql9/exec", {
+            const response = await fetch("https://script.google.com/macros/s/AKfycbxTc727AygmMtFnXymhGpUfBFbo6pbpJlBY-0qhjHmL705YAqIQRnM-DQ5NIEqLGaWl/exec", {
               method: "POST",
               mode: "no-cors", // Required to bypass strict CORS in Apps Script Web Apps from local dev
               headers: {
