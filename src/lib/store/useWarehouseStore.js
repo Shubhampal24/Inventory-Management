@@ -500,57 +500,73 @@ const useWarehouseStore = create(
             const payload = {
               action: "full_sync",
               racks: (state.racks || []).map(r => ({
-                id: r.id || "",
-                type: r.type || "",
-                description: r.description || "",
-                bayCount: r.bayCount || 1,
-                levels: Array.isArray(r.levels) ? r.levels.join(",") : (r.levels || ""),
-                slots: Array.isArray(r.slots) ? r.slots.join(",") : (r.slots || ""),
-                side: r.side || "",
-                status: r.status || ""
+                "Rack ID": r.id || "",
+                "Rack Type": r.type || "Pallet Rack",
+                "Source Description": r.description || "",
+                "Bay Count (VERIFY)": r.bayCount || 1,
+                "Levels": Array.isArray(r.levels) ? r.levels.join(", ") : (r.levels || ""),
+                "Side Requirement (VERIFY)": r.side || "Single-sided",
+                "Status": r.status || "Active",
+                "Source Note": r.notes || ""
               })),
               materials: (state.materialMasterBase || []).map(m => ({
-                id: m.id || "",
-                name: m.name || "",
-                description: m.description || "",
-                category: m.category || "",
-                unit: m.unit || "",
-                reorderLevel: m.reorderLevel || 0
+                "Material ID": m.id || "",
+                "Material Description": m.name || m.description || "",
+                "Category": m.category || "",
+                "Unit": m.unit || "PCS",
+                "Reorder Level": m.reorderLevel || 0,
+                "Material ID (Name)": `${m.id || ""} (${m.name || m.description || ""})`
               })),
               locations: (state.locations || []).map(l => ({
-                locationId: l.locationId || "",
-                rack: l.rack || "",
-                bay: l.bay || 1,
-                level: l.level || "",
-                slot: l.slot || "",
-                status: l.status || "",
-                materialId: l.materialId || "",
-                materialName: l.materialDesc || "",
-                batch: l.batch || ""
+                "Rack": l.rack || "",
+                "Bay": l.bay || 1,
+                "Level": l.level || "",
+                "Slot": l.slot || "",
+                "Location ID": l.locationId || "",
+                "Status": l.status || "Available",
+                "Material ID": l.materialId || "",
+                "Material Description": l.materialDesc || "",
+                "Category": l.category || "",
+                "Quantity": l.quantity || 0,
+                "Unit": l.unit || "",
+                "Batch/Lot": l.batch || "",
+                "Notes": l.notes || ""
               })),
               movements: (state.enrichedMovements || []).map(m => ({
-                id: m.id || "",
-                date: m.date || "",
-                type: m.type || "",
-                materialId: m.materialId || "",
-                materialName: m.materialDesc || "",
-                locationId: m.locationId || "",
-                quantity: m.quantity || 0,
-                unit: m.unit || "",
-                user: m.user || "",
-                reference: m.reference || "",
-                notes: m.notes || ""
+                "Date": m.date || new Date().toISOString().slice(0, 10),
+                "Material ID": m.materialId || "",
+                "Material Description": m.materialDesc || "",
+                "Location ID": m.locationId || "",
+                "Transaction Type": m.type || "IN",
+                "Quantity": m.quantity || 0,
+                "Unit": m.unit || "PCS",
+                "Reference": m.reference || "",
+                "User": m.user || "System",
+                "Notes": m.notes || ""
               })),
               inventory: (state.inventory || []).map(i => ({
-                materialId: i.materialId || "",
-                materialName: i.materialDesc || "",
-                locationId: i.locationId || "",
-                openingStock: i.openingStock || 0,
-                stockIn: i.stockIn || 0,
-                stockOut: i.stockOut || 0,
-                currentStock: i.currentStock || 0,
-                status: i.status || ""
+                "Material ID": i.materialId || "",
+                "Material Description": i.materialDesc || "",
+                "Category": i.category || "",
+                "Location ID": i.locationId || "",
+                "Opening Stock": i.openingStock || 0,
+                "Stock IN": i.stockIn || 0,
+                "Stock OUT": i.stockOut || 0,
+                "Current Stock": i.currentStock || 0,
+                "Unit": i.unit || "PCS",
+                "Reorder Level": i.reorderLevel || 0,
+                "Stock Status": i.status || "OK"
               })),
+              rackLabels: (state.locations || []).filter(l => l.locationId).map(l => ({
+                "Location ID": l.locationId || "",
+                "Material Description": l.materialDesc || "",
+                "Category": l.category || "",
+                "Rack": l.rack || "",
+                "Bay": l.bay || 1,
+                "Level": l.level || "",
+                "Slot": l.slot || "",
+                "Print Status": "READY"
+              }))
             }
             
             const response = await fetch("https://script.google.com/macros/s/AKfycbwI5pc76htOqKniG3MNLUN9J7i92W0StGKfT6jHF_Kiud-nEQA_PJaV8iWnG6WaLv9L/exec", {
