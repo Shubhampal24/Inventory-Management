@@ -21,7 +21,7 @@ export default function RackManager() {
   const [open, setOpen] = React.useState(false)
   const [editingRackId, setEditingRackId] = React.useState(null)
   
-  const emptyForm = { id: "", type: "Pallet Rack", description: "", bayCount: 4, levels: ["GL1","GL2","GL3","SL4","SL5","SL6"], side: "Double-sided", status: "Active" }
+  const emptyForm = { id: "", type: "Pallet Rack", description: "", bayCount: 4, levels: "GL1, GL2, GL3", slots: "A, B", side: "Double-sided", status: "Active" }
   const [form, setForm] = React.useState(emptyForm)
 
   const getRackStats = (rackId) => {
@@ -36,7 +36,15 @@ export default function RackManager() {
   }
 
   const openAdd = () => { setEditingRackId(null); setForm(emptyForm); setOpen(true) }
-  const openEdit = (rack) => { setEditingRackId(rack.id); setForm({ ...rack }); setOpen(true) }
+  const openEdit = (rack) => { 
+    setEditingRackId(rack.id); 
+    setForm({ 
+      ...rack, 
+      levels: Array.isArray(rack.levels) ? rack.levels.join(", ") : (rack.levels || "GL1, GL2"),
+      slots: Array.isArray(rack.slots) ? rack.slots.join(", ") : (rack.slots || "A, B")
+    }); 
+    setOpen(true) 
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -46,12 +54,12 @@ export default function RackManager() {
         toast({ title: "Cannot reduce bays", description: `Bay ${minBay} is currently occupied!`, variant: "destructive" })
         return
       }
-      updateRack(editingRackId, { ...form, bayCount: Number(form.bayCount) })
+      updateRack(editingRackId, { ...form, bayCount: Number(form.bayCount), levels: form.levels?.split(",").map(s => s.trim()).filter(Boolean), slots: form.slots?.split(",").map(s => s.trim()).filter(Boolean) })
       toast({ title: "Rack updated", variant: "success" })
     } else {
       if (!form.id) { toast({ title: "Rack ID required", variant: "destructive" }); return }
       if (racks.find(r => r.id === form.id)) { toast({ title: "Rack ID already exists", variant: "destructive" }); return }
-      addRack({ ...form, bayCount: Number(form.bayCount) })
+      addRack({ ...form, bayCount: Number(form.bayCount), levels: form.levels?.split(",").map(s => s.trim()).filter(Boolean), slots: form.slots?.split(",").map(s => s.trim()).filter(Boolean) })
       toast({ title: "Rack added", description: form.id, variant: "success" })
     }
     setOpen(false)
@@ -153,6 +161,17 @@ export default function RackManager() {
             <div className="space-y-1.5">
               <Label>Description</Label>
               <Input value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="e.g. Rack 11 (4 Bays, 6 Levels)" />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Levels (comma separated)</Label>
+              <Input value={form.levels} onChange={e => setForm(f => ({ ...f, levels: e.target.value.toUpperCase() }))} placeholder="e.g. GL1, GL2, SL3" />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Slots per Level (comma separated)</Label>
+              <Input value={form.slots} onChange={e => setForm(f => ({ ...f, slots: e.target.value.toUpperCase() }))} placeholder="e.g. A, B, C" />
+              <p className="text-[10px] text-muted-foreground mt-1">
+                Auto-generates physical locations (e.g. {form.id || "R11"}-B01-{(form.levels||"").split(",")[0]?.trim() || "GL1"}-{(form.slots||"").split(",")[0]?.trim() || "A"})
+              </p>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">

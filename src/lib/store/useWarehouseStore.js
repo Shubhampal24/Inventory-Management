@@ -426,22 +426,66 @@ const useWarehouseStore = create(
         // ─── RACK ACTIONS ──────────────────────────────────────────
 
         addRack: (rack) => {
-          set(state => ({ racks: [...state.racks, rack] }))
+          set(state => {
+            const newRacks = [...state.racks, rack]
+            const newLocations = [...state.locationMasterBase]
+            const levels = Array.isArray(rack.levels) ? rack.levels : (rack.levels || "").split(",").map(s => s.trim())
+            const slots = Array.isArray(rack.slots) ? rack.slots : (rack.slots || "A, B").split(",").map(s => s.trim())
+            
+            for (let bay = 1; bay <= (rack.bayCount || 1); bay++) {
+              for (const level of levels) {
+                if (!level) continue
+                for (const slot of slots) {
+                  if (!slot) continue
+                  const locationId = computeLocationId(rack.id, bay, level, slot)
+                  if (!newLocations.find(l => l.locationId === locationId)) {
+                    newLocations.push({ rack: rack.id, bay, level, slot, locationId, materialId: '', batch: '', notes: '' })
+                  }
+                }
+              }
+            }
+            return { racks: newRacks, locationMasterBase: newLocations }
+          })
+          get()._recompute()
         },
 
         updateRack: (id, updates) => {
           set(state => {
             const newRacks = state.racks.map(r => r.id === id ? { ...r, ...updates } : r)
-            let newLocations = state.locationMasterBase
-            if (updates.bayCount !== undefined) {
-              const newBayCount = Number(updates.bayCount)
-              newLocations = state.locationMasterBase.filter(l => {
-                if (l.rack === id && l.bay > newBayCount) {
-                  if (!l.materialId) return false // Drop unassigned location outside new bay limit
+            let newLocations = [...state.locationMasterBase]
+            const rack = newRacks.find(r => r.id === id)
+            
+            if (rack) {
+              const newBayCount = Number(rack.bayCount || 1)
+              const levels = Array.isArray(rack.levels) ? rack.levels : (rack.levels || "").split(",").map(s => s.trim())
+              const slots = Array.isArray(rack.slots) ? rack.slots : (rack.slots || "A, B").split(",").map(s => s.trim())
+              
+              // Prune empty locations that fall outside the new bounds
+              newLocations = newLocations.filter(l => {
+                if (l.rack === id) {
+                  const bayOutside = l.bay > newBayCount
+                  const levelOutside = !levels.includes(l.level)
+                  const slotOutside = !slots.includes(l.slot)
+                  if ((bayOutside || levelOutside || slotOutside) && !l.materialId) return false 
                 }
                 return true
               })
+              
+              // Generate any missing locations within bounds
+              for (let bay = 1; bay <= newBayCount; bay++) {
+                for (const level of levels) {
+                  if (!level) continue
+                  for (const slot of slots) {
+                    if (!slot) continue
+                    const locationId = computeLocationId(id, bay, level, slot)
+                    if (!newLocations.find(l => l.locationId === locationId)) {
+                      newLocations.push({ rack: id, bay, level, slot, locationId, materialId: '', batch: '', notes: '' })
+                    }
+                  }
+                }
+              }
             }
+
             return { racks: newRacks, locationMasterBase: newLocations }
           })
           get()._recompute()
@@ -463,8 +507,8 @@ const useWarehouseStore = create(
               })),
               inventory: state.inventory.map(i => ({
                 materialId: i.materialId, materialName: i.materialDesc,
-                category: i.category, totalQuantity: i.quantity, unit: i.unit,
-                status: i.status, locations: i.locations.join(", ")
+                category: i.category, totalQuantity: i.currentStock, unit: i.unit,
+                status: i.status, locationId: i.locationId || ""
               })),
               locations: state.locations.map(l => ({
                 locationId: l.locationId, rack: l.rack, bay: l.bay, level: l.level, slot: l.slot,
