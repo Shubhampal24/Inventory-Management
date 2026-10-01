@@ -69,6 +69,9 @@ movements = []
 ws_mov = wb['Stock Movement']
 for i, row in enumerate(ws_mov.iter_rows(min_row=2, values_only=True)):
     if not row[1] and not row[3]: continue
+    # Skip stray rows that were accidentally pasted from Location Master (Date="R01", Status="Available")
+    if str(row[0]).startswith('R01') or str(row[5]) == 'Available' or str(row[4]) == 'Available': continue
+    
     dt = row[0]
     if isinstance(dt, datetime):
         dt_str = dt.strftime('%Y-%m-%d')
