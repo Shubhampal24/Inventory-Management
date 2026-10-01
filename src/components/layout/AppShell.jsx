@@ -1,8 +1,9 @@
-﻿import * as React from "react"
+import * as React from "react"
 import { Outlet } from "react-router-dom"
 import { Sidebar } from "./Sidebar"
 import { TopBar } from "./TopBar"
 import { cn } from "@/lib/utils"
+import CommandPalette from "@/components/CommandPalette"
 
 export function AppShell() {
   const [collapsed, setCollapsed] = React.useState(false)
@@ -16,6 +17,7 @@ export function AppShell() {
           <Outlet />
         </main>
       </div>
+      <CommandPalette />
     </div>
   )
 }

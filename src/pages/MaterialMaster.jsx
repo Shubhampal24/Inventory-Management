@@ -37,7 +37,7 @@ export default function MaterialMaster() {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    if (!form.id || !form.description) { toast({ title: "ID and Description required", variant: "destructive" }); return }
+    if (!form.id || !form.name) { toast({ title: "ID and Name required", variant: "destructive" }); return }
     if (editing) {
       updateMaterial(editing, { name: form.name, description: form.description, category: form.category, unit: form.unit, reorderLevel: Number(form.reorderLevel) })
       toast({ title: "Material updated", variant: "success" })
@@ -149,8 +149,8 @@ export default function MaterialMaster() {
               <Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value.toUpperCase() }))} placeholder="Material Name" required />
             </div>
             <div className="space-y-1.5">
-              <Label>Description <span className="text-destructive">*</span></Label>
-              <Input value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Detailed description" required />
+              <Label>Description</Label>
+              <Input value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Optional detailed description" />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
