@@ -9,9 +9,9 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
 import { useToast } from "@/components/ui/toast"
 import { CATEGORIES, UNITS } from "@/lib/utils"
-import { Plus, Search, Pencil, Trash2, Database } from "lucide-react"
+import { Plus, Search, Pencil, Trash2, Database, Info } from "lucide-react"
 
-const emptyForm = { id: "", name: "", description: "", category: "ELECTRIC", unit: "PCS", reorderLevel: 10 }
+const emptyForm = { id: "", name: "", description: "", category: "", unit: "PCS", reorderLevel: 10 }
 
 export default function MaterialMaster() {
   const materials = useWarehouseStore(s => s.materialMasterBase ?? [])
@@ -154,20 +154,22 @@ export default function MaterialMaster() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label>Category</Label>
-                <Input 
-                  list="categories-list" 
-                  value={form.category} 
-                  onChange={e => setForm(f => ({ ...f, category: e.target.value.toUpperCase() }))} 
-                  placeholder="Type or select category"
-                  required
-                />
-                <datalist id="categories-list">
-                  {CATEGORIES.map(c => <option key={c} value={c} />)}
-                </datalist>
+                <Label>Category <span className="text-destructive">*</span></Label>
+                <Select value={form.category} onValueChange={v => setForm(f => ({ ...f, category: v }))} required>
+                  <SelectTrigger><SelectValue placeholder="Select Category" /></SelectTrigger>
+                  <SelectContent>{CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                </Select>
               </div>
               <div className="space-y-1.5">
-                <Label>Reorder Level</Label>
+                <Label className="flex items-center gap-1.5">
+                  Reorder Level
+                  <div className="group relative flex items-center">
+                    <Info size={14} className="text-muted-foreground cursor-help" />
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden w-56 p-2 bg-popover text-popover-foreground text-xs rounded shadow-xl border border-border group-hover:block z-50 text-center">
+                      Minimum stock threshold. When stock falls below this quantity, a "REORDER" alert will trigger on the dashboard.
+                    </div>
+                  </div>
+                </Label>
                 <Input type="number" min="0" value={form.reorderLevel} onChange={e => setForm(f => ({ ...f, reorderLevel: e.target.value }))} />
               </div>
             </div>
