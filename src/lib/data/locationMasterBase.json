@@ -1,0 +1,512 @@
+[
+  {
+    "rack": "R01",
+    "bay": 1,
+    "level": "GL1",
+    "slot": "A1",
+    "locationId": "R01-B01-GL1-A1",
+    "materialId": "MAT001",
+    "batch": "LOT-2026-BW01",
+    "notes": "Padded packaging roll; dry storage"
+  },
+  {
+    "rack": "R01",
+    "bay": 1,
+    "level": "GL1",
+    "slot": "A2",
+    "locationId": "R01-B01-GL1-A2",
+    "materialId": "MAT043",
+    "batch": "LOT-2026-BW02",
+    "notes": "Padded packaging roll; dry storage"
+  },
+  {
+    "rack": "R01",
+    "bay": 1,
+    "level": "GL1",
+    "slot": "B",
+    "locationId": "R01-B01-GL1-B",
+    "materialId": "MAT002",
+    "batch": "LOT-2026-CD02",
+    "notes": "Scented candle cartons; keep away from direct heat"
+  },
+  {
+    "rack": "R01",
+    "bay": 1,
+    "level": "GL2",
+    "slot": "A",
+    "locationId": "R01-B01-GL2-A",
+    "materialId": "MAT003",
+    "batch": "LOT-2026-MC03",
+    "notes": "Electrical circuit breaker; secure dry bin"
+  },
+  {
+    "rack": "R01",
+    "bay": 1,
+    "level": "GL2",
+    "slot": "B",
+    "locationId": "R01-B01-GL2-B",
+    "materialId": "MAT004",
+    "batch": "LOT-2026-FS04",
+    "notes": "Civil adhesive bag; palletized floor clearance"
+  },
+  {
+    "rack": "R01",
+    "bay": 2,
+    "level": "GL1",
+    "slot": "A",
+    "locationId": "R01-B02-GL1-A",
+    "materialId": "MAT005",
+    "batch": "LOT-2026-GA05",
+    "notes": "Heavy granite slabs; vertical rack storage"
+  },
+  {
+    "rack": "R01",
+    "bay": 2,
+    "level": "GL2",
+    "slot": "A",
+    "locationId": "R01-B02-GL2-A",
+    "materialId": "MAT010",
+    "batch": "LOT-2026-SC10",
+    "notes": "High-grade self threading screws carton"
+  },
+  {
+    "rack": "R01",
+    "bay": 2,
+    "level": "GL2",
+    "slot": "B",
+    "locationId": "R01-B02-GL2-B",
+    "materialId": "MAT012",
+    "batch": "LOT-2026-SP12",
+    "notes": "Pipe fittings; HVAC storage section"
+  },
+  {
+    "rack": "R01",
+    "bay": 1,
+    "level": "GL3",
+    "slot": "A",
+    "locationId": "R01-B01-GL3-A",
+    "materialId": "MAT016",
+    "batch": "LOT-2026-WN16",
+    "notes": "Wire nails box; hardware rack section"
+  },
+  {
+    "rack": "R01",
+    "bay": 1,
+    "level": "GL3",
+    "slot": "B",
+    "locationId": "R01-B01-GL3-B",
+    "materialId": "MAT033",
+    "batch": "LOT-2026-WN17",
+    "notes": "Open pallet position"
+  },
+  {
+    "rack": "R01",
+    "bay": 2,
+    "level": "GL1",
+    "slot": "B",
+    "locationId": "R01-B02-GL1-B",
+    "materialId": "MAT049",
+    "batch": "LOT-2026-B01",
+    "notes": "Open pallet position"
+  },
+  {
+    "rack": "R01",
+    "bay": 2,
+    "level": "GL3",
+    "slot": "A",
+    "locationId": "R01-B02-GL3-A",
+    "materialId": "",
+    "batch": "LOT-2026-WN19",
+    "notes": "Open pallet position"
+  },
+  {
+    "rack": "R02",
+    "bay": 2,
+    "level": "GL1",
+    "slot": "A",
+    "locationId": "R02-B02-GL1-A",
+    "materialId": "",
+    "batch": "LOT-2026-WN20",
+    "notes": ""
+  },
+  {
+    "rack": "R01",
+    "bay": 1,
+    "level": "GL1",
+    "slot": "A3",
+    "locationId": "R01-B01-GL1-A3",
+    "materialId": "MAT047",
+    "batch": "LOT-2026-WN21",
+    "notes": ""
+  },
+  {
+    "rack": "R01",
+    "bay": 1,
+    "level": "SL6",
+    "slot": "A",
+    "locationId": "R01-B01-SL6-A",
+    "materialId": "",
+    "batch": "",
+    "notes": "Generated for Rack R01"
+  },
+  {
+    "rack": "R01",
+    "bay": 1,
+    "level": "SL6",
+    "slot": "B",
+    "locationId": "R01-B01-SL6-B",
+    "materialId": "",
+    "batch": "",
+    "notes": "Generated for Rack R01"
+  },
+  {
+    "rack": "R01",
+    "bay": 1,
+    "level": "SL5",
+    "slot": "A",
+    "locationId": "R01-B01-SL5-A",
+    "materialId": "",
+    "batch": "",
+    "notes": "Generated for Rack R01"
+  },
+  {
+    "rack": "R01",
+    "bay": 1,
+    "level": "SL5",
+    "slot": "B",
+    "locationId": "R01-B01-SL5-B",
+    "materialId": "",
+    "batch": "",
+    "notes": "Generated for Rack R01"
+  },
+  {
+    "rack": "R01",
+    "bay": 1,
+    "level": "SL4",
+    "slot": "A",
+    "locationId": "R01-B01-SL4-A",
+    "materialId": "",
+    "batch": "",
+    "notes": "Generated for Rack R01"
+  },
+  {
+    "rack": "R01",
+    "bay": 1,
+    "level": "SL4",
+    "slot": "B",
+    "locationId": "R01-B01-SL4-B",
+    "materialId": "",
+    "batch": "",
+    "notes": "Generated for Rack R01"
+  },
+  {
+    "rack": "R01",
+    "bay": 2,
+    "level": "SL6",
+    "slot": "A",
+    "locationId": "R01-B02-SL6-A",
+    "materialId": "",
+    "batch": "",
+    "notes": "Generated for Rack R01"
+  },
+  {
+    "rack": "R01",
+    "bay": 2,
+    "level": "SL6",
+    "slot": "B",
+    "locationId": "R01-B02-SL6-B",
+    "materialId": "",
+    "batch": "",
+    "notes": "Generated for Rack R01"
+  },
+  {
+    "rack": "R01",
+    "bay": 2,
+    "level": "SL5",
+    "slot": "A",
+    "locationId": "R01-B02-SL5-A",
+    "materialId": "",
+    "batch": "",
+    "notes": "Generated for Rack R01"
+  },
+  {
+    "rack": "R01",
+    "bay": 2,
+    "level": "SL5",
+    "slot": "B",
+    "locationId": "R01-B02-SL5-B",
+    "materialId": "",
+    "batch": "",
+    "notes": "Generated for Rack R01"
+  },
+  {
+    "rack": "R01",
+    "bay": 2,
+    "level": "SL4",
+    "slot": "A",
+    "locationId": "R01-B02-SL4-A",
+    "materialId": "",
+    "batch": "",
+    "notes": "Generated for Rack R01"
+  },
+  {
+    "rack": "R01",
+    "bay": 2,
+    "level": "SL4",
+    "slot": "B",
+    "locationId": "R01-B02-SL4-B",
+    "materialId": "",
+    "batch": "",
+    "notes": "Generated for Rack R01"
+  },
+  {
+    "rack": "R01",
+    "bay": 2,
+    "level": "GL3",
+    "slot": "B",
+    "locationId": "R01-B02-GL3-B",
+    "materialId": "",
+    "batch": "",
+    "notes": "Generated for Rack R01"
+  },
+  {
+    "rack": "R01",
+    "bay": 3,
+    "level": "SL6",
+    "slot": "A",
+    "locationId": "R01-B03-SL6-A",
+    "materialId": "",
+    "batch": "",
+    "notes": "Generated for Rack R01"
+  },
+  {
+    "rack": "R01",
+    "bay": 3,
+    "level": "SL6",
+    "slot": "B",
+    "locationId": "R01-B03-SL6-B",
+    "materialId": "",
+    "batch": "",
+    "notes": "Generated for Rack R01"
+  },
+  {
+    "rack": "R01",
+    "bay": 3,
+    "level": "SL5",
+    "slot": "A",
+    "locationId": "R01-B03-SL5-A",
+    "materialId": "",
+    "batch": "",
+    "notes": "Generated for Rack R01"
+  },
+  {
+    "rack": "R01",
+    "bay": 3,
+    "level": "SL5",
+    "slot": "B",
+    "locationId": "R01-B03-SL5-B",
+    "materialId": "",
+    "batch": "",
+    "notes": "Generated for Rack R01"
+  },
+  {
+    "rack": "R01",
+    "bay": 3,
+    "level": "SL4",
+    "slot": "A",
+    "locationId": "R01-B03-SL4-A",
+    "materialId": "",
+    "batch": "",
+    "notes": "Generated for Rack R01"
+  },
+  {
+    "rack": "R01",
+    "bay": 3,
+    "level": "SL4",
+    "slot": "B",
+    "locationId": "R01-B03-SL4-B",
+    "materialId": "",
+    "batch": "",
+    "notes": "Generated for Rack R01"
+  },
+  {
+    "rack": "R01",
+    "bay": 3,
+    "level": "GL3",
+    "slot": "A",
+    "locationId": "R01-B03-GL3-A",
+    "materialId": "",
+    "batch": "",
+    "notes": "Generated for Rack R01"
+  },
+  {
+    "rack": "R01",
+    "bay": 3,
+    "level": "GL3",
+    "slot": "B",
+    "locationId": "R01-B03-GL3-B",
+    "materialId": "",
+    "batch": "",
+    "notes": "Generated for Rack R01"
+  },
+  {
+    "rack": "R01",
+    "bay": 3,
+    "level": "GL2",
+    "slot": "A",
+    "locationId": "R01-B03-GL2-A",
+    "materialId": "",
+    "batch": "",
+    "notes": "Generated for Rack R01"
+  },
+  {
+    "rack": "R01",
+    "bay": 3,
+    "level": "GL2",
+    "slot": "B",
+    "locationId": "R01-B03-GL2-B",
+    "materialId": "",
+    "batch": "",
+    "notes": "Generated for Rack R01"
+  },
+  {
+    "rack": "R01",
+    "bay": 3,
+    "level": "GL1",
+    "slot": "A",
+    "locationId": "R01-B03-GL1-A",
+    "materialId": "",
+    "batch": "",
+    "notes": "Generated for Rack R01"
+  },
+  {
+    "rack": "R01",
+    "bay": 3,
+    "level": "GL1",
+    "slot": "B",
+    "locationId": "R01-B03-GL1-B",
+    "materialId": "",
+    "batch": "",
+    "notes": "Generated for Rack R01"
+  },
+  {
+    "rack": "R01",
+    "bay": 4,
+    "level": "SL6",
+    "slot": "A",
+    "locationId": "R01-B04-SL6-A",
+    "materialId": "",
+    "batch": "",
+    "notes": "Generated for Rack R01"
+  },
+  {
+    "rack": "R01",
+    "bay": 4,
+    "level": "SL6",
+    "slot": "B",
+    "locationId": "R01-B04-SL6-B",
+    "materialId": "",
+    "batch": "",
+    "notes": "Generated for Rack R01"
+  },
+  {
+    "rack": "R01",
+    "bay": 4,
+    "level": "SL5",
+    "slot": "A",
+    "locationId": "R01-B04-SL5-A",
+    "materialId": "",
+    "batch": "",
+    "notes": "Generated for Rack R01"
+  },
+  {
+    "rack": "R01",
+    "bay": 4,
+    "level": "SL5",
+    "slot": "B",
+    "locationId": "R01-B04-SL5-B",
+    "materialId": "",
+    "batch": "",
+    "notes": "Generated for Rack R01"
+  },
+  {
+    "rack": "R01",
+    "bay": 4,
+    "level": "SL4",
+    "slot": "A",
+    "locationId": "R01-B04-SL4-A",
+    "materialId": "",
+    "batch": "",
+    "notes": "Generated for Rack R01"
+  },
+  {
+    "rack": "R01",
+    "bay": 4,
+    "level": "SL4",
+    "slot": "B",
+    "locationId": "R01-B04-SL4-B",
+    "materialId": "",
+    "batch": "",
+    "notes": "Generated for Rack R01"
+  },
+  {
+    "rack": "R01",
+    "bay": 4,
+    "level": "GL3",
+    "slot": "A",
+    "locationId": "R01-B04-GL3-A",
+    "materialId": "",
+    "batch": "",
+    "notes": "Generated for Rack R01"
+  },
+  {
+    "rack": "R01",
+    "bay": 4,
+    "level": "GL3",
+    "slot": "B",
+    "locationId": "R01-B04-GL3-B",
+    "materialId": "",
+    "batch": "",
+    "notes": "Generated for Rack R01"
+  },
+  {
+    "rack": "R01",
+    "bay": 4,
+    "level": "GL2",
+    "slot": "A",
+    "locationId": "R01-B04-GL2-A",
+    "materialId": "",
+    "batch": "",
+    "notes": "Generated for Rack R01"
+  },
+  {
+    "rack": "R01",
+    "bay": 4,
+    "level": "GL2",
+    "slot": "B",
+    "locationId": "R01-B04-GL2-B",
+    "materialId": "",
+    "batch": "",
+    "notes": "Generated for Rack R01"
+  },
+  {
+    "rack": "R01",
+    "bay": 4,
+    "level": "GL1",
+    "slot": "A",
+    "locationId": "R01-B04-GL1-A",
+    "materialId": "",
+    "batch": "",
+    "notes": "Generated for Rack R01"
+  },
+  {
+    "rack": "R01",
+    "bay": 4,
+    "level": "GL1",
+    "slot": "B",
+    "locationId": "R01-B04-GL1-B",
+    "materialId": "",
+    "batch": "",
+    "notes": "Generated for Rack R01"
+  }
+]
