@@ -6,6 +6,87 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 import { Printer, Tag, CheckSquare, Square } from "lucide-react"
 
+// Deterministic QR Code Generator seeded by Location ID (never changes on re-render)
+function getDeterministicQRGrid(text = "", size = 15) {
+  let hash = 0
+  for (let i = 0; i < text.length; i++) {
+    hash = (hash << 5) - hash + text.charCodeAt(i)
+    hash |= 0
+  }
+  let seed = Math.abs(hash) || 12345
+  const rand = () => {
+    seed = (seed * 1664525 + 1013904223) % 4294967296
+    return seed / 4294967296
+  }
+
+  const grid = Array.from({ length: size }, () => Array(size).fill(false))
+
+  // Draw 5x5 finder patterns in 3 corners
+  const drawFinder = (r, c) => {
+    for (let i = 0; i < 5; i++) {
+      for (let j = 0; j < 5; j++) {
+        if (i === 0 || i === 4 || j === 0 || j === 4 || (i === 2 && j === 2)) {
+          if (r + i < size && c + j < size) {
+            grid[r + i][c + j] = true
+          }
+        }
+      }
+    }
+  }
+
+  drawFinder(0, 0)
+  drawFinder(0, size - 5)
+  drawFinder(size - 5, 0)
+
+  // Timing lines
+  for (let i = 5; i < size - 5; i++) {
+    grid[4][i] = i % 2 === 0
+    grid[i][4] = i % 2 === 0
+  }
+
+  // Data modules
+  for (let r = 0; r < size; r++) {
+    for (let c = 0; c < size; c++) {
+      const inFinder1 = r < 5 && c < 5
+      const inFinder2 = r < 5 && c >= size - 5
+      const inFinder3 = r >= size - 5 && c < 5
+      const inTiming = (r === 4 && c >= 5 && c < size - 5) || (c === 4 && r >= 5 && r < size - 5)
+      if (!inFinder1 && !inFinder2 && !inFinder3 && !inTiming) {
+        grid[r][c] = rand() > 0.48
+      }
+    }
+  }
+
+  return grid
+}
+
+function LocationQRCode({ locationId }) {
+  const grid = React.useMemo(() => getDeterministicQRGrid(locationId, 15), [locationId])
+  const size = 56
+  const moduleSize = size / 15
+
+  return (
+    <div className="w-16 h-16 rounded-lg bg-white border border-border/80 flex items-center justify-center mb-3 mx-auto p-1 shadow-sm">
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="block">
+        {grid.map((row, r) =>
+          row.map((active, c) =>
+            active ? (
+              <rect
+                key={`${r}-${c}`}
+                x={c * moduleSize}
+                y={r * moduleSize}
+                width={moduleSize}
+                height={moduleSize}
+                fill="#111827"
+              />
+            ) : null
+          )
+        )}
+      </svg>
+    </div>
+  )
+}
+
 function LabelCard({ loc, selected, onToggle }) {
   return (
     <div
@@ -15,14 +96,8 @@ function LabelCard({ loc, selected, onToggle }) {
       <div className="absolute top-2 right-2 no-print">
         {selected ? <CheckSquare size={16} className="text-primary"/> : <Square size={16} className="text-muted-foreground"/>}
       </div>
-      {/* QR placeholder */}
-      <div className="w-16 h-16 rounded-lg bg-secondary/50 border border-border flex items-center justify-center mb-3 mx-auto">
-        <div className="grid grid-cols-3 gap-0.5 w-10">
-          {Array(9).fill(0).map((_, i) => (
-            <div key={i} className={`w-3 h-3 rounded-sm ${Math.random() > 0.5 ? "bg-foreground/70" : "bg-transparent"}`} />
-          ))}
-        </div>
-      </div>
+      {/* Stable deterministic QR Code */}
+      <LocationQRCode locationId={loc.locationId} />
       <p className="font-mono text-xs font-bold text-foreground text-center mb-2 tracking-wide">{loc.locationId}</p>
       <div className="text-center space-y-1">
         <p className="text-[10px] font-semibold text-foreground truncate">{loc.materialDesc || "—"}</p>
