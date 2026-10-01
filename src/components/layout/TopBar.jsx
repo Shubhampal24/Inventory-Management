@@ -30,6 +30,7 @@ export function TopBar({ collapsed }) {
   const info = routeLabels[location.pathname] || { title: "RackOS", subtitle: "" }
 
   const handleSync = async () => {
+    if (!window.confirm("Are you sure you want to sync and overwrite data in Google Sheets?")) return
     toast({ title: "Syncing...", description: "Pushing data to Google Sheets" })
     const success = await syncToGoogleSheets()
     if (success) {

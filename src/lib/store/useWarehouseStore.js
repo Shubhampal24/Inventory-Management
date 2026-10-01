@@ -85,9 +85,9 @@
 
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import locationMasterBase from '../data/locationMasterBase.json'
-import materialMasterBase from '../data/materialMasterBase.json'
-import movementsBase from '../data/movementsBase.json'
+import { locations as locationMasterBase } from '../data/locations.js'
+import { materials as materialMasterBase } from '../data/materials.js'
+import { movements as movementsBase } from '../data/movements.js'
 import { racks as racksBase } from '../data/racks.js'
 
 // ─── Pure formula functions (mirroring Excel) ──────────────────────────────
@@ -499,34 +499,96 @@ const useWarehouseStore = create(
             const state = get()
             const payload = {
               action: "full_sync",
-              movements: state.enrichedMovements.map(m => ({
-                id: m.id, date: m.date, type: m.type, 
-                materialId: m.materialId, materialName: m.materialDesc,
-                locationId: m.locationId, quantity: m.quantity, unit: m.unit,
-                user: m.user, reference: m.reference, notes: m.notes
+              // 1. Rack Master
+              racks: (state.racks || []).map(r => ({
+                "Rack ID": r.id,
+                "Rack Type": r.type || "Pallet Rack",
+                "Source Description": r.description || "",
+                "Bay Count (VERIFY)": r.bayCount || 1,
+                "Levels": Array.isArray(r.levels) ? r.levels.join(", ") : (r.levels || ""),
+                "Side Requirement (VERIFY)": r.side || "Single-sided",
+                "Status": r.status || "Active",
+                "Source Note": r.notes || "Verified from actual rack layout sheet"
               })),
-              inventory: state.inventory.map(i => ({
-                materialId: i.materialId, materialName: i.materialDesc,
-                category: i.category, totalQuantity: i.currentStock, unit: i.unit,
-                status: i.status, locationId: i.locationId || ""
+
+              // 2. Material Master
+              materials: (state.materialMasterBase || []).map(m => ({
+                "Material ID": m.id,
+                "Material Description": m.name || m.description || "",
+                "Category": m.category || "",
+                "Unit": m.unit || "PCS",
+                "Reorder Level": m.reorderLevel !== undefined ? m.reorderLevel : 0,
+                "Material ID (Name)": `${m.id} (${m.name || m.description || ""})`
               })),
-              locations: state.locations.map(l => ({
-                locationId: l.locationId, rack: l.rack, bay: l.bay, level: l.level, slot: l.slot,
-                status: l.status, materialId: l.materialId, materialName: l.materialDesc, batch: l.batch
+
+              // 3. Location Master
+              locations: (state.locations || []).map(l => ({
+                "Rack": l.rack || "",
+                "Bay": l.bay || 1,
+                "Level": l.level || "",
+                "Slot": l.slot || "",
+                "Location ID": l.locationId,
+                "Status": l.status || "Available",
+                "Material ID": l.materialId ? (l.materialDesc ? `${l.materialId} (${l.materialDesc})` : l.materialId) : "",
+                "Material Description": l.materialDesc || "",
+                "Category": l.category || "",
+                "Quantity": l.quantity || 0,
+                "Unit": l.unit || "",
+                "Batch/Lot": l.batch || "",
+                "Notes": l.notes || ""
               })),
-              racks: state.racks
+
+              // 4. Stock Movement
+              movements: (state.enrichedMovements || []).map(m => ({
+                "Date": m.date || new Date().toISOString().slice(0, 10),
+                "Material ID": m.materialId || "",
+                "Material Description": m.materialDesc || "",
+                "Location ID": m.locationId || "",
+                "Transaction Type": m.type || "IN",
+                "Quantity": m.quantity || 0,
+                "Unit": m.unit || "PCS",
+                "Reference": m.reference || "",
+                "User": m.user || "System",
+                "Notes": m.notes || ""
+              })),
+
+              // 5. Inventory
+              inventory: (state.inventory || []).map(i => ({
+                "Material ID": i.materialId,
+                "Material Description": i.materialDesc || "",
+                "Category": i.category || "",
+                "Location ID": i.locationId || "",
+                "Opening Stock": i.openingStock || 0,
+                "Stock IN": i.stockIn || 0,
+                "Stock OUT": i.stockOut || 0,
+                "Current Stock": i.currentStock !== undefined ? i.currentStock : 0,
+                "Unit": i.unit || "PCS",
+                "Reorder Level": i.reorderLevel || 0,
+                "Stock Status": i.status || "OK"
+              })),
+
+              // 6. Rack Labels
+              rackLabels: (state.locations || []).filter(l => l.locationId).map(l => ({
+                "Location ID": l.locationId,
+                "Material Description": l.materialDesc || "",
+                "Category": l.category || "",
+                "Rack": l.rack || "",
+                "Bay": l.bay || 1,
+                "Level": l.level || "",
+                "Slot": l.slot || "",
+                "Print Status": "READY"
+              }))
             }
             
             const response = await fetch("https://script.google.com/macros/s/AKfycbxTc727AygmMtFnXymhGpUfBFbo6pbpJlBY-0qhjHmL705YAqIQRnM-DQ5NIEqLGaWl/exec", {
               method: "POST",
-              mode: "no-cors", // Required to bypass strict CORS in Apps Script Web Apps from local dev
+              mode: "no-cors",
               headers: {
                 "Content-Type": "application/json"
               },
               body: JSON.stringify(payload)
             })
             
-            // With no-cors, response is opaque, we just assume success if it didn't throw
             set({ isSyncing: false })
             return true
           } catch (error) {
