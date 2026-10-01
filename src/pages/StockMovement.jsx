@@ -76,29 +76,29 @@ export default function StockMovement() {
   return (
     <div className="space-y-4 animate-fade-in-up">
       {/* Summary */}
-      <div className="grid grid-cols-3 gap-3">
-        <div className="glass-hover rounded-xl border border-border p-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="glass-hover rounded-xl border border-border p-4 flex flex-col justify-center">
           <p className="text-2xl font-bold text-foreground">{enrichedMovements.length}</p>
           <p className="text-xs text-muted-foreground">Total Movements</p>
         </div>
-        <div className="glass-hover rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4">
-          <p className="text-2xl font-bold text-emerald-400">{totalIn.toFixed(0)}</p>
+        <div className="glass-hover rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4 flex flex-col justify-center">
+          <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{totalIn.toFixed(0)}</p>
           <p className="text-xs text-muted-foreground">Total IN</p>
         </div>
-        <div className="glass-hover rounded-xl border border-red-500/30 bg-red-500/5 p-4">
-          <p className="text-2xl font-bold text-red-400">{totalOut.toFixed(0)}</p>
+        <div className="glass-hover rounded-xl border border-red-500/30 bg-red-500/5 p-4 flex flex-col justify-center">
+          <p className="text-2xl font-bold text-red-600 dark:text-red-400">{totalOut.toFixed(0)}</p>
           <p className="text-xs text-muted-foreground">Total OUT</p>
         </div>
       </div>
 
       <Card className="glass">
         <CardHeader className="pb-3">
-          <div className="flex flex-wrap items-center gap-3">
-            <CardTitle className="flex items-center gap-2 flex-1">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <CardTitle className="flex items-center gap-2">
               <ArrowLeftRight size={16} className="text-primary" />
               Stock Movements ({filtered.length})
             </CardTitle>
-            <Button onClick={() => setOpen(true)}>
+            <Button onClick={() => setOpen(true)} className="w-full sm:w-auto">
               <Plus size={15}/> Add Movement
             </Button>
           </div>
@@ -121,55 +121,57 @@ export default function StockMovement() {
           </div>
         </CardHeader>
         <CardContent className="p-0 overflow-auto">
-          <table className="w-full wms-table min-w-[750px]">
-            <thead>
-              <tr>
-                <th className="text-left">Date</th>
-                <th className="text-left">Material</th>
-                <th className="text-left">Location</th>
-                <th className="text-center">Type</th>
-                <th className="text-right">Qty</th>
-                <th className="text-left">Reference</th>
-                <th className="text-left">User</th>
-                <th className="text-left">Notes</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map(m => (
-                <tr key={m.id} className={m.type === "IN" ? "!bg-emerald-500/3" : "!bg-red-500/3"}>
-                  <td className="text-xs text-muted-foreground whitespace-nowrap">{formatDate(m.date)}</td>
-                  <td>
-                    <p className="font-medium text-foreground text-xs">{m.materialDesc || m.materialId}</p>
-                    <p className="text-[10px] font-mono text-muted-foreground">{m.materialId}</p>
-                  </td>
-                  <td><LocationBadge locationId={m.locationId} /></td>
-                  <td className="text-center">
-                    {m.type === "IN"
-                      ? <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-400"><ArrowUpCircle size={12}/>IN</span>
-                      : <span className="inline-flex items-center gap-1 text-xs font-bold text-red-400"><ArrowDownCircle size={12}/>OUT</span>
-                    }
-                  </td>
-                  <td className="text-right font-mono text-sm">
-                    <span className={m.type === "IN" ? "text-emerald-400" : "text-red-400"}>{m.type === "OUT" ? "-" : "+"}{m.quantity}</span>
-                    <span className="text-muted-foreground text-xs ml-1">{m.unit}</span>
-                  </td>
-                  <td className="text-xs font-mono text-muted-foreground">{m.reference || "—"}</td>
-                  <td className="text-xs text-foreground">{m.user}</td>
-                  <td className="text-xs text-muted-foreground max-w-[150px] truncate">{m.notes || "—"}</td>
-                  <td>
-                    <button onClick={() => { deleteMovement(m.id); toast({ title: "Movement deleted", variant: "warning" }) }}
-                      className="text-muted-foreground hover:text-destructive transition-colors p-1">
-                      <Trash2 size={13}/>
-                    </button>
-                  </td>
+          <div className="overflow-x-auto w-full">
+            <table className="w-full wms-table min-w-[750px]">
+              <thead>
+                <tr>
+                  <th className="text-left">Date</th>
+                  <th className="text-left">Material</th>
+                  <th className="text-left">Location</th>
+                  <th className="text-center">Type</th>
+                  <th className="text-right">Qty</th>
+                  <th className="text-left">Reference</th>
+                  <th className="text-left">User</th>
+                  <th className="text-left">Notes</th>
+                  <th></th>
                 </tr>
-              ))}
-              {filtered.length === 0 && (
-                <tr><td colSpan={9} className="text-center py-12 text-muted-foreground text-sm">No movements found</td></tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filtered.map(m => (
+                  <tr key={m.id} className={m.type === "IN" ? "bg-emerald-500/5 dark:!bg-emerald-500/3" : "bg-red-500/5 dark:!bg-red-500/3"}>
+                    <td className="text-xs text-muted-foreground whitespace-nowrap">{formatDate(m.date)}</td>
+                    <td>
+                      <p className="font-medium text-foreground text-xs">{m.materialDesc || m.materialId}</p>
+                      <p className="text-[10px] font-mono text-muted-foreground">{m.materialId}</p>
+                    </td>
+                    <td><LocationBadge locationId={m.locationId} /></td>
+                    <td className="text-center">
+                      {m.type === "IN"
+                        ? <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-400"><ArrowUpCircle size={12}/>IN</span>
+                        : <span className="inline-flex items-center gap-1 text-xs font-bold text-red-600 dark:text-red-400"><ArrowDownCircle size={12}/>OUT</span>
+                      }
+                    </td>
+                    <td className="text-right font-mono text-sm">
+                      <span className={m.type === "IN" ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}>{m.type === "OUT" ? "-" : "+"}{m.quantity}</span>
+                      <span className="text-muted-foreground text-xs ml-1">{m.unit}</span>
+                    </td>
+                    <td className="text-xs font-mono text-muted-foreground">{m.reference || "—"}</td>
+                    <td className="text-xs text-foreground">{m.user}</td>
+                    <td className="text-xs text-muted-foreground max-w-[150px] truncate">{m.notes || "—"}</td>
+                    <td>
+                      <button onClick={() => { deleteMovement(m.id); toast({ title: "Movement deleted", variant: "warning" }) }}
+                        className="text-muted-foreground hover:text-destructive transition-colors p-1">
+                        <Trash2 size={13}/>
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                {filtered.length === 0 && (
+                  <tr><td colSpan={9} className="text-center py-12 text-muted-foreground text-sm">No movements found</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </CardContent>
       </Card>
 
@@ -180,7 +182,7 @@ export default function StockMovement() {
             <DialogTitle>Add Stock Movement</DialogTitle>
             <DialogDescription>Record a new IN or OUT transaction. Inventory will update automatically.</DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleSubmit} className="px-6 space-y-4">
+          <form onSubmit={handleSubmit} className="px-6 space-y-4 max-h-[70vh] overflow-y-auto">
             {/* Type toggle */}
             <div>
               <Label className="mb-2 block">Transaction Type</Label>
@@ -200,7 +202,7 @@ export default function StockMovement() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label>Date</Label>
                 <Input type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} required />
@@ -244,7 +246,7 @@ export default function StockMovement() {
               </datalist>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label>Quantity <span className="text-destructive">*</span></Label>
                 <Input type="number" min="0" step="0.01" value={form.quantity} onChange={e => setForm(f => ({ ...f, quantity: e.target.value }))} required />

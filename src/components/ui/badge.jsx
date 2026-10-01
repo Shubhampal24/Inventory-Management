@@ -1,4 +1,4 @@
-﻿import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils"
 import { CATEGORY_COLORS, STATUS_CONFIG } from "@/lib/utils"
 
 export function Badge({ children, variant = "default", className, ...props }) {
@@ -35,7 +35,7 @@ export function StockBadge({ status, className }) {
 
 export function LocationBadge({ locationId, className }) {
   return (
-    <span className={cn("font-mono text-xs bg-slate-800/70 text-slate-300 border border-slate-700/50 rounded px-2 py-0.5", className)}>
+    <span className={cn("font-mono text-xs bg-slate-100 dark:bg-slate-800/70 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700/50 rounded px-2 py-0.5", className)}>
       {locationId || "—"}
     </span>
   )

@@ -52,7 +52,7 @@ export default function Inventory() {
   return (
     <div className="space-y-4 animate-fade-in-up">
       {/* Status summary */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {[
           { label: "OK", count: stats.ok, color: "emerald" },
           { label: "REORDER", count: stats.reorder, color: "amber" },
@@ -63,7 +63,7 @@ export default function Inventory() {
             onClick={() => setStatusFilter(statusFilter === s.label ? "all" : s.label)}
             className={`rounded-xl border p-3 text-left transition-all ${statusFilter === s.label ? `bg-${s.color}-500/15 border-${s.color}-500/40` : "glass border-border hover:border-primary/30"}`}
           >
-            <p className={`text-2xl font-bold text-${s.color}-400`}>{s.count}</p>
+            <p className={`text-2xl font-bold text-${s.color}-600 dark:text-${s.color}-400`}>{s.count}</p>
             <p className="text-xs text-muted-foreground">{s.label}</p>
           </button>
         ))}
@@ -71,12 +71,12 @@ export default function Inventory() {
 
       <Card className="glass">
         <CardHeader className="pb-3">
-          <div className="flex flex-wrap items-center gap-3">
-            <CardTitle className="flex items-center gap-2 flex-1">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <CardTitle className="flex items-center gap-2">
               <Package size={16} className="text-primary" />
-              Inventory ({filtered.length} items)
+              Inventory ({filtered.length})
             </CardTitle>
-            <Button size="sm" variant="outline" onClick={exportCSV}><Download size={13}/> Export CSV</Button>
+            <Button size="sm" variant="outline" onClick={exportCSV} className="w-full sm:w-auto"><Download size={13}/> Export CSV</Button>
           </div>
           {/* Filters */}
           <div className="flex flex-wrap gap-2 mt-2">
@@ -117,43 +117,45 @@ export default function Inventory() {
           </div>
         </CardHeader>
         <CardContent className="p-0 overflow-auto">
-          <table className="w-full wms-table min-w-[800px]">
-            <thead>
-              <tr>
-                <th className="text-left">Material</th>
-                <th className="text-left">Category</th>
-                <th className="text-left">Location</th>
-                <th className="text-right">Stock IN</th>
-                <th className="text-right">Stock OUT</th>
-                <th className="text-right">Current</th>
-                <th className="text-right">Reorder At</th>
-                <th className="text-center">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map(item => (
-                <tr key={item.materialId} className="cursor-pointer" onClick={() => navigate("/movements")}>
-                  <td>
-                    <p className="font-medium text-foreground">{item.materialDesc}</p>
-                    <p className="text-[11px] font-mono text-muted-foreground">{item.materialId}</p>
-                  </td>
-                  <td><CategoryBadge category={item.category} /></td>
-                  <td><LocationBadge locationId={item.locationId} /></td>
-                  <td className="text-right font-mono text-sm text-emerald-400">{item.stockIn}</td>
-                  <td className="text-right font-mono text-sm text-red-400">{item.stockOut}</td>
-                  <td className="text-right">
-                    <span className="font-mono font-bold text-foreground">{Number(item.currentStock).toFixed(2)}</span>
-                    <span className="text-xs text-muted-foreground ml-1">{item.unit}</span>
-                  </td>
-                  <td className="text-right font-mono text-sm text-muted-foreground">{item.reorderLevel} {item.unit}</td>
-                  <td className="text-center"><StockBadge status={item.status} /></td>
+          <div className="overflow-x-auto w-full">
+            <table className="w-full wms-table min-w-[800px]">
+              <thead>
+                <tr>
+                  <th className="text-left">Material</th>
+                  <th className="text-left">Category</th>
+                  <th className="text-left">Location</th>
+                  <th className="text-right">Stock IN</th>
+                  <th className="text-right">Stock OUT</th>
+                  <th className="text-right">Current</th>
+                  <th className="text-right">Reorder At</th>
+                  <th className="text-center">Status</th>
                 </tr>
-              ))}
-              {filtered.length === 0 && (
-                <tr><td colSpan={8} className="text-center py-12 text-muted-foreground text-sm">No items match your filters</td></tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filtered.map(item => (
+                  <tr key={item.materialId} className="cursor-pointer" onClick={() => navigate("/movements")}>
+                    <td>
+                      <p className="font-medium text-foreground">{item.materialDesc}</p>
+                      <p className="text-[11px] font-mono text-muted-foreground">{item.materialId}</p>
+                    </td>
+                    <td><CategoryBadge category={item.category} /></td>
+                    <td><LocationBadge locationId={item.locationId} /></td>
+                    <td className="text-right font-mono text-sm text-emerald-600 dark:text-emerald-400">{item.stockIn}</td>
+                    <td className="text-right font-mono text-sm text-red-600 dark:text-red-400">{item.stockOut}</td>
+                    <td className="text-right">
+                      <span className="font-mono font-bold text-foreground">{Number(item.currentStock).toFixed(2)}</span>
+                      <span className="text-xs text-muted-foreground ml-1">{item.unit}</span>
+                    </td>
+                    <td className="text-right font-mono text-sm text-muted-foreground">{item.reorderLevel} {item.unit}</td>
+                    <td className="text-center"><StockBadge status={item.status} /></td>
+                  </tr>
+                ))}
+                {filtered.length === 0 && (
+                  <tr><td colSpan={8} className="text-center py-12 text-muted-foreground text-sm">No items match your filters</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </CardContent>
       </Card>
     </div>

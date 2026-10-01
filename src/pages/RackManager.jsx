@@ -147,8 +147,8 @@ export default function RackManager() {
             <DialogTitle>{editingRackId ? "Edit Rack" : "Add New Rack"}</DialogTitle>
             <DialogDescription>{editingRackId ? `Updating configuration for ${editingRackId}` : "Configure a new physical rack row in the warehouse"}</DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleSubmit} className="px-6 space-y-4">
-            <div className="grid grid-cols-2 gap-3">
+          <form onSubmit={handleSubmit} className="px-6 space-y-4 max-h-[70vh] overflow-y-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label>Rack ID <span className="text-destructive">*</span></Label>
                 <Input value={form.id} onChange={e => setForm(f => ({ ...f, id: e.target.value.toUpperCase() }))} placeholder="e.g. R11" className="font-mono" required disabled={!!editingRackId} />
@@ -173,7 +173,7 @@ export default function RackManager() {
                 Auto-generates physical locations (e.g. {form.id || "R11"}-B01-{(form.levels||"").split(",")[0]?.trim() || "GL1"}-{(form.slots||"").split(",")[0]?.trim() || "A"})
               </p>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label>Type</Label>
                 <Select value={form.type} onValueChange={v => setForm(f => ({ ...f, type: v }))}>

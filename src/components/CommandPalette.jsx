@@ -30,8 +30,8 @@ export default function CommandPalette() {
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-[15vh] sm:pt-[20vh] px-4 backdrop-blur-sm bg-background/80" onClick={() => setOpen(false)}>
-      <div className="w-full max-w-xl overflow-hidden rounded-2xl border border-border bg-card/80 backdrop-blur-xl shadow-2xl animate-fade-in-up" onClick={e => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-[15vh] sm:pt-[20vh] px-4 backdrop-blur-sm bg-black/40 dark:bg-background/80" onClick={() => setOpen(false)}>
+      <div className="w-full max-w-xl overflow-hidden rounded-2xl border border-border bg-card/95 backdrop-blur-xl shadow-2xl animate-fade-in-up" onClick={e => e.stopPropagation()}>
         <Command className="w-full h-full flex flex-col" label="Global Command Menu">
           <div className="flex items-center border-b border-border px-3" cmdk-input-wrapper="">
             <Search className="mr-2 h-5 w-5 shrink-0 text-muted-foreground" />

@@ -589,6 +589,24 @@ const useWarehouseStore = create(
 
         // ─── UI ACTIONS ────────────────────────────────────────────
 
+        theme: (typeof window !== 'undefined' && localStorage.getItem('warehouse-theme')) || 'dark',
+        toggleTheme: () => {
+          const next = get().theme === 'light' ? 'dark' : 'light'
+          if (typeof document !== 'undefined') {
+            document.documentElement.classList.toggle('dark', next === 'dark')
+            document.documentElement.classList.toggle('light', next === 'light')
+            localStorage.setItem('warehouse-theme', next)
+          }
+          set({ theme: next })
+        },
+        setTheme: (next) => {
+          if (typeof document !== 'undefined') {
+            document.documentElement.classList.toggle('dark', next === 'dark')
+            document.documentElement.classList.toggle('light', next === 'light')
+            localStorage.setItem('warehouse-theme', next)
+          }
+          set({ theme: next })
+        },
         setCurrentUser: (name) => set({ currentUser: name }),
         setSelectedRack: (rackId) => set({ selectedRack: rackId }),
         setCommandOpen: (open) => set({ commandOpen: open }),
@@ -681,10 +699,17 @@ const useWarehouseStore = create(
         materialMasterBase: state.materialMasterBase,
         movements: state.movements,
         racks: state.racks,
+        theme: state.theme,
       }),
       onRehydrateStorage: () => (state) => {
         // After rehydration, recompute derived data
-        if (state) state._recompute()
+        if (state) {
+          state._recompute()
+          if (typeof document !== 'undefined' && state.theme) {
+            document.documentElement.classList.toggle('dark', state.theme === 'dark')
+            document.documentElement.classList.toggle('light', state.theme === 'light')
+          }
+        }
       },
     }
   )

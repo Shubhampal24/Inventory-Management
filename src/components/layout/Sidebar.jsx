@@ -27,36 +27,45 @@ const groups = {
   tools:      "Tools",
 }
 
-export function Sidebar({ collapsed, setCollapsed }) {
+export function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) {
   const location = useLocation()
   // Select raw primitives — NOT function calls — to avoid infinite re-render loop
   // (calling s.getInventoryStats() inside selector creates new object every render)
   const reorderAlerts = useWarehouseStore(s => (s.inventory ?? []).filter(i => i.status === 'REORDER').length)
 
   return (
-    <aside className={cn(
-      "fixed left-0 top-0 h-screen z-40 flex flex-col transition-all duration-300",
-      "border-r border-border bg-card/95 backdrop-blur-xl",
-      collapsed ? "w-16" : "w-60"
-    )}>
+    <>
+      {/* Mobile Backdrop */}
+      {mobileOpen && (
+        <div 
+          className="fixed inset-0 bg-black/40 dark:bg-background/80 backdrop-blur-sm z-40 md:hidden"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
+      <aside className={cn(
+        "fixed left-0 top-0 h-screen z-50 flex flex-col transition-transform duration-300",
+        "border-r border-border bg-card/95 backdrop-blur-xl",
+        collapsed ? "md:w-16" : "md:w-60",
+        "w-64 md:translate-x-0",
+        mobileOpen ? "translate-x-0" : "-translate-x-full"
+      )}>
       {/* Logo */}
-      <div className={cn("flex items-center gap-3 px-4 py-4 border-b border-border", collapsed && "justify-center px-2")}>
+      <div className={cn("flex items-center gap-3 px-4 py-4 border-b border-border", collapsed && "md:justify-center md:px-2")}>
         <div className="flex-shrink-0 w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/30">
           <Warehouse size={16} className="text-white" />
         </div>
-        {!collapsed && (
-          <div className="min-w-0">
-            <p className="text-sm font-bold gradient-text truncate">RackOS</p>
-            <p className="text-[10px] text-muted-foreground truncate">Warehouse Management</p>
-          </div>
-        )}
+        <div className={cn("min-w-0", collapsed && "md:hidden")}>
+          <p className="text-sm font-bold gradient-text truncate">RackOS</p>
+          <p className="text-[10px] text-muted-foreground truncate">Warehouse Management</p>
+        </div>
       </div>
 
       {/* Alert pill */}
-      {!collapsed && reorderAlerts > 0 && (
-        <div className="mx-3 mt-3 flex items-center gap-2 rounded-lg bg-amber-500/10 border border-amber-500/25 px-3 py-2">
-          <AlertTriangle size={13} className="text-amber-400 shrink-0" />
-          <span className="text-xs text-amber-400 font-medium">{reorderAlerts} reorder alerts</span>
+      {reorderAlerts > 0 && (
+        <div className={cn("mx-3 mt-3 flex items-center gap-2 rounded-lg bg-amber-500/10 border border-amber-500/25 px-3 py-2", collapsed && "md:hidden")}>
+          <AlertTriangle size={13} className="text-amber-600 dark:text-amber-400 shrink-0" />
+          <span className="text-xs text-amber-600 dark:text-amber-400 font-medium">{reorderAlerts} reorder alerts</span>
         </div>
       )}
 
@@ -66,9 +75,7 @@ export function Sidebar({ collapsed, setCollapsed }) {
           const items = navItems.filter(n => n.group === gKey)
           return (
             <div key={gKey} className="mb-3">
-              {!collapsed && (
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground px-2 mb-1">{gLabel}</p>
-              )}
+              <p className={cn("text-[10px] font-semibold uppercase tracking-wider text-muted-foreground px-2 mb-1", collapsed && "md:hidden")}>{gLabel}</p>
               {items.map(item => {
                 const Icon = item.icon
                 const isActive = location.pathname === item.path
@@ -77,14 +84,15 @@ export function Sidebar({ collapsed, setCollapsed }) {
                     key={item.path}
                     to={item.path}
                     className={cn(
-                      "flex items-center gap-3 rounded-lg px-2 py-2 text-sm font-medium transition-all duration-150 mb-0.5 border border-transparent",
+                      "flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm font-medium transition-all duration-150 mb-0.5 border border-transparent",
                       isActive ? "nav-item-active" : "text-muted-foreground hover:text-foreground hover:bg-secondary/50",
-                      collapsed && "justify-center px-2"
+                      collapsed && "md:justify-center md:px-2"
                     )}
+                    onClick={() => { if (window.innerWidth < 768) setMobileOpen(false) }}
                     title={collapsed ? item.label : undefined}
                   >
                     <Icon size={16} className="shrink-0" />
-                    {!collapsed && <span className="truncate">{item.label}</span>}
+                    <span className={cn("truncate", collapsed && "md:hidden")}>{item.label}</span>
                   </NavLink>
                 )
               })}
@@ -93,8 +101,8 @@ export function Sidebar({ collapsed, setCollapsed }) {
         })}
       </nav>
 
-      {/* Collapse toggle */}
-      <div className="border-t border-border p-2">
+      {/* Collapse toggle (Desktop only) */}
+      <div className="border-t border-border p-2 hidden md:block">
         <button
           onClick={() => setCollapsed(v => !v)}
           className={cn("w-full flex items-center gap-2 rounded-lg px-2 py-2 text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors text-sm", collapsed && "justify-center")}
@@ -103,5 +111,6 @@ export function Sidebar({ collapsed, setCollapsed }) {
         </button>
       </div>
     </aside>
+    </>
   )
 }

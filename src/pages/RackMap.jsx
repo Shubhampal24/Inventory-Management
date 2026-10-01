@@ -14,10 +14,10 @@ function RackCell({ location, onClick, rackCellState }) {
   const isAvailable = rackCellState === "available"
 
   const stateStyles = {
-    occupied: "border-blue-500/40 bg-blue-500/10 hover:border-blue-400 hover:bg-blue-500/20 text-blue-100",
-    available: "border-emerald-500/30 bg-emerald-500/5 hover:border-emerald-400/60 hover:bg-emerald-500/15 text-emerald-200",
-    reorder: "border-amber-500/40 bg-amber-500/10 hover:border-amber-400 hover:bg-amber-500/20 text-amber-100",
-    "empty-crit": "border-red-500/40 bg-red-500/10 hover:border-red-400 hover:bg-red-500/20 text-red-100",
+    occupied: "border-blue-500/40 bg-blue-500/10 hover:border-blue-400 hover:bg-blue-500/20 text-blue-950 dark:text-blue-100",
+    available: "border-emerald-500/30 bg-emerald-500/5 hover:border-emerald-400/60 hover:bg-emerald-500/15 text-emerald-950 dark:text-emerald-200",
+    reorder: "border-amber-500/40 bg-amber-500/10 hover:border-amber-400 hover:bg-amber-500/20 text-amber-950 dark:text-amber-100",
+    "empty-crit": "border-red-500/40 bg-red-500/10 hover:border-red-400 hover:bg-red-500/20 text-red-950 dark:text-red-100",
     unassigned: "border-border/40 bg-secondary/10 hover:border-border text-muted-foreground",
   }[rackCellState] || "border-border/40 bg-secondary/10 hover:border-border text-muted-foreground"
 
@@ -63,7 +63,7 @@ function RackCell({ location, onClick, rackCellState }) {
       </div>
 
       {/* Bottom row: Location Code / Quantity */}
-      <div className="flex items-center justify-between mt-1 pt-1 border-t border-white/5 text-[9px]">
+      <div className="flex items-center justify-between mt-1 pt-1 border-t border-slate-200 dark:border-white/5 text-[9px]">
         <span className="font-mono text-muted-foreground/70 truncate max-w-[85px]">
           {location.locationId}
         </span>
@@ -149,8 +149,8 @@ export default function RackMap() {
       <Card className="glass">
         <CardContent className="p-4 space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mr-1">
+            <div className="flex items-center gap-2 overflow-x-auto max-w-full pb-1 no-scrollbar sm:flex-wrap">
+              <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mr-1 shrink-0">
                 Select Rack:
               </span>
               {racks.map(r => (
@@ -162,7 +162,7 @@ export default function RackMap() {
                     setSelectedBay("all")
                   }}
                   className={cn(
-                    "px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-150 border",
+                    "px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-150 border shrink-0",
                     selectedRack === r.id
                       ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20 scale-105"
                       : "border-border/60 bg-secondary/30 text-muted-foreground hover:text-foreground hover:bg-secondary/60 hover:border-border"
@@ -174,7 +174,7 @@ export default function RackMap() {
             </div>
 
             {/* Legend */}
-            <div className="flex flex-wrap gap-4 items-center bg-secondary/20 px-3 py-1.5 rounded-lg border border-border/40">
+            <div className="flex flex-wrap gap-3 sm:gap-4 items-center bg-secondary/20 px-3 py-1.5 rounded-lg border border-border/40">
               {legend.map(l => (
                 <div key={l.label} className="flex items-center gap-1.5">
                   <span className={cn("w-2 h-2 rounded-full", l.dot)} />
@@ -191,7 +191,7 @@ export default function RackMap() {
                 <Layers size={18} />
               </div>
               <div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <h2 className="text-base font-bold text-foreground">
                     Rack {selectedRack}
                   </h2>
@@ -209,12 +209,12 @@ export default function RackMap() {
             </div>
 
             {/* Bay filter pills */}
-            <div className="flex items-center gap-1.5 bg-secondary/30 p-1 rounded-lg border border-border/50">
-              <span className="text-[11px] text-muted-foreground font-medium px-2">Bay:</span>
+            <div className="flex items-center gap-1.5 bg-secondary/30 p-1 rounded-lg border border-border/50 max-w-full overflow-x-auto no-scrollbar">
+              <span className="text-[11px] text-muted-foreground font-medium px-2 shrink-0">Bay:</span>
               <button
                 onClick={() => setSelectedBay("all")}
                 className={cn(
-                  "px-2.5 py-1 rounded-md text-xs font-semibold transition-all",
+                  "px-2.5 py-1 rounded-md text-xs font-semibold transition-all shrink-0",
                   selectedBay === "all"
                     ? "bg-primary text-primary-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
@@ -227,7 +227,7 @@ export default function RackMap() {
                   key={b}
                   onClick={() => setSelectedBay(String(b))}
                   className={cn(
-                    "px-2.5 py-1 rounded-md text-xs font-semibold transition-all font-mono",
+                    "px-2.5 py-1 rounded-md text-xs font-semibold transition-all font-mono shrink-0",
                     selectedBay === String(b)
                       ? "bg-primary text-primary-foreground shadow-sm"
                       : "text-muted-foreground hover:text-foreground"
@@ -243,17 +243,18 @@ export default function RackMap() {
 
       {/* Main Elevation Profile Matrix (Full Width) */}
       <Card className="glass overflow-hidden">
-        <div className="p-4 border-b border-border/60 bg-secondary/10 flex items-center justify-between">
+        <div className="p-4 border-b border-border/60 bg-secondary/10 flex flex-wrap items-center justify-between gap-2">
           <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
             <span className="w-2 h-2 rounded bg-primary" />
             ELEVATION PROFILE: FRONT VIEW OF RACK {selectedRack}
           </h3>
-          <span className="text-[11px] text-muted-foreground">
+          <span className="text-[11px] text-muted-foreground flex items-center gap-1">
+            <span className="sm:hidden text-primary font-medium">⇄ Swipe to pan bays · </span>
             Showing {filteredBays.length} {filteredBays.length === 1 ? "Bay" : "Bays"} · Real warehouse configuration
           </span>
         </div>
 
-        <div className="overflow-x-auto p-4">
+        <div className="overflow-x-auto p-4 w-full touch-pan-x">
           <div className="min-w-max space-y-3">
             {/* Header Row: BAY \ LEVEL Column Headers */}
             <div className="flex gap-3 pb-2 border-b border-border/60">
@@ -351,7 +352,7 @@ export default function RackMap() {
           />
 
           {/* Drawer Sidebar */}
-          <div className="fixed top-0 right-0 h-full w-full max-w-md bg-card border-l border-border z-50 p-6 flex flex-col shadow-2xl overflow-y-auto animate-slide-right">
+          <div className="fixed top-0 right-0 h-full w-full max-w-md bg-card border-l border-border z-50 p-4 sm:p-6 flex flex-col shadow-2xl overflow-y-auto animate-slide-right">
             {/* Drawer Header */}
             <div className="flex items-start justify-between pb-4 border-b border-border">
               <div>
@@ -373,7 +374,7 @@ export default function RackMap() {
             {/* Drawer Body Content */}
             <div className="space-y-4 py-4 flex-1">
               {/* Coordinates Grid */}
-              <div className="grid grid-cols-4 gap-2 text-center">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
                 {[
                   ["Rack", selectedCell.rack],
                   ["Bay", `B${String(selectedCell.bay).padStart(2, "0")}`],

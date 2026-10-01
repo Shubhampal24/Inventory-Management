@@ -1,4 +1,4 @@
-﻿import * as React from "react"
+import * as React from "react"
 import { cn } from "@/lib/utils"
 
 const TabsContext = React.createContext({})
@@ -15,7 +15,7 @@ export function Tabs({ value, onValueChange, defaultValue, children, className }
 
 export function TabsList({ className, children }) {
   return (
-    <div className={cn("inline-flex items-center gap-1 rounded-xl bg-secondary/50 p-1", className)}>
+    <div className={cn("inline-flex max-w-full overflow-x-auto no-scrollbar items-center gap-1 rounded-xl bg-secondary/50 p-1", className)}>
       {children}
     </div>
   )
@@ -28,7 +28,7 @@ export function TabsTrigger({ value, children, className }) {
     <button
       onClick={() => onChange(value)}
       className={cn(
-        "inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-150",
+        "inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-150 whitespace-nowrap shrink-0",
         isActive
           ? "bg-card text-foreground shadow border border-border"
           : "text-muted-foreground hover:text-foreground hover:bg-card/50",

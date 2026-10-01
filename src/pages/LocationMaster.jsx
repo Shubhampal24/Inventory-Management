@@ -78,13 +78,15 @@ export default function LocationMaster() {
     <div className="space-y-4 animate-fade-in-up">
       <Card className="glass">
         <CardHeader className="pb-3">
-          <div className="flex flex-wrap items-center gap-3">
-            <CardTitle className="flex items-center gap-2 flex-1">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <CardTitle className="flex items-center gap-2">
               <MapPin size={16} className="text-primary"/>
               Location Master ({filtered.length} shown)
             </CardTitle>
-            <Button onClick={() => setGlobalAssignOpen(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white border-none"><Link size={15}/> Assign Material</Button>
-            <Button onClick={() => setAddOpen(true)}><Plus size={15}/> Add Location</Button>
+            <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+              <Button onClick={() => setGlobalAssignOpen(true)} className="flex-1 sm:flex-none bg-indigo-600 hover:bg-indigo-700 text-white border-none"><Link size={15}/> Assign Material</Button>
+              <Button onClick={() => setAddOpen(true)} className="flex-1 sm:flex-none"><Plus size={15}/> Add Location</Button>
+            </div>
           </div>
           <div className="flex flex-wrap gap-2 mt-2">
             <div className="relative flex-1 min-w-[180px]">
@@ -115,55 +117,57 @@ export default function LocationMaster() {
           </div>
         </CardHeader>
         <CardContent className="p-0 overflow-auto">
-          <table className="w-full wms-table min-w-[800px]">
-            <thead>
-              <tr>
-                <th className="text-left">Location ID<br/><span className="text-[9px] font-normal text-muted-foreground/60">Formula: Rack-B{"{"}Bay:00{"}"}-Level-Slot</span></th>
-                <th className="text-center">Rack</th><th className="text-center">Bay</th>
-                <th className="text-center">Level</th><th className="text-center">Slot</th>
-                <th className="text-center">Status<br/><span className="text-[9px] font-normal text-muted-foreground/60">IF(Qty{">"}0,"Occupied","Available")</span></th>
-                <th className="text-left">Material</th>
-                <th className="text-right">Qty<br/><span className="text-[9px] font-normal text-muted-foreground/60">SUMIFS IN - SUMIFS OUT</span></th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map(l => (
-                <tr key={l.locationId}>
-                  <td><LocationBadge locationId={l.locationId} /></td>
-                  <td className="text-center font-mono text-xs">{l.rack}</td>
-                  <td className="text-center font-mono text-xs">{String(l.bay).padStart(2,"0")}</td>
-                  <td className="text-center font-mono text-xs">{l.level}</td>
-                  <td className="text-center font-mono text-xs">{l.slot}</td>
-                  <td className="text-center">
-                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-md ${l.status === "Occupied" ? "bg-blue-500/15 text-blue-400" : "bg-emerald-500/15 text-emerald-400"}`}>
-                      {l.status}
-                    </span>
-                  </td>
-                  <td>
-                    {l.materialDesc ? (
-                      <div>
-                        <p className="text-xs font-medium text-foreground">{l.materialDesc}</p>
-                        <p className="text-[10px] font-mono text-muted-foreground">{l.materialId}</p>
-                        {l.category && <CategoryBadge category={l.category} className="mt-0.5" />}
-                      </div>
-                    ) : <span className="text-xs text-muted-foreground">—</span>}
-                  </td>
-                  <td className="text-right font-mono text-sm">
-                    {l.quantity != null ? <><span className="text-foreground">{Number(l.quantity).toFixed(2)}</span><span className="text-muted-foreground text-xs ml-1">{l.unit}</span></> : "—"}
-                  </td>
-                  <td>
-                    <div className="flex gap-1 justify-end">
-                      <button title="Assign material" onClick={() => { setAssignOpen(l.locationId); setAssignMatId(l.materialId || "") }}
-                        className="text-muted-foreground hover:text-primary p-1 transition-colors"><Link size={13}/></button>
-                      {l.materialId && <button title="Unassign" onClick={() => { unassignMaterial(l.locationId); toast({ title: "Material unassigned", variant: "warning" }) }}
-                        className="text-muted-foreground hover:text-destructive p-1 transition-colors"><Unlink size={13}/></button>}
-                    </div>
-                  </td>
+          <div className="overflow-x-auto w-full">
+            <table className="w-full wms-table min-w-[800px]">
+              <thead>
+                <tr>
+                  <th className="text-left">Location ID<br/><span className="text-[9px] font-normal text-muted-foreground/60">Formula: Rack-B{"{"}Bay:00{"}"}-Level-Slot</span></th>
+                  <th className="text-center">Rack</th><th className="text-center">Bay</th>
+                  <th className="text-center">Level</th><th className="text-center">Slot</th>
+                  <th className="text-center">Status<br/><span className="text-[9px] font-normal text-muted-foreground/60">IF(Qty{">"}0,"Occupied","Available")</span></th>
+                  <th className="text-left">Material</th>
+                  <th className="text-right">Qty<br/><span className="text-[9px] font-normal text-muted-foreground/60">SUMIFS IN - SUMIFS OUT</span></th>
+                  <th></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filtered.map(l => (
+                  <tr key={l.locationId}>
+                    <td><LocationBadge locationId={l.locationId} /></td>
+                    <td className="text-center font-mono text-xs">{l.rack}</td>
+                    <td className="text-center font-mono text-xs">{String(l.bay).padStart(2,"0")}</td>
+                    <td className="text-center font-mono text-xs">{l.level}</td>
+                    <td className="text-center font-mono text-xs">{l.slot}</td>
+                    <td className="text-center">
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-md ${l.status === "Occupied" ? "bg-blue-500/15 text-blue-400" : "bg-emerald-500/15 text-emerald-400"}`}>
+                        {l.status}
+                      </span>
+                    </td>
+                    <td>
+                      {l.materialDesc ? (
+                        <div>
+                          <p className="text-xs font-medium text-foreground">{l.materialDesc}</p>
+                          <p className="text-[10px] font-mono text-muted-foreground">{l.materialId}</p>
+                          {l.category && <CategoryBadge category={l.category} className="mt-0.5" />}
+                        </div>
+                      ) : <span className="text-xs text-muted-foreground">—</span>}
+                    </td>
+                    <td className="text-right font-mono text-sm">
+                      {l.quantity != null ? <><span className="text-foreground">{Number(l.quantity).toFixed(2)}</span><span className="text-muted-foreground text-xs ml-1">{l.unit}</span></> : "—"}
+                    </td>
+                    <td>
+                      <div className="flex gap-1 justify-end">
+                        <button title="Assign material" onClick={() => { setAssignOpen(l.locationId); setAssignMatId(l.materialId || "") }}
+                          className="text-muted-foreground hover:text-primary p-1 transition-colors"><Link size={13}/></button>
+                        {l.materialId && <button title="Unassign" onClick={() => { unassignMaterial(l.locationId); toast({ title: "Material unassigned", variant: "warning" }) }}
+                          className="text-muted-foreground hover:text-destructive p-1 transition-colors"><Unlink size={13}/></button>}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </CardContent>
       </Card>
 
@@ -174,8 +178,8 @@ export default function LocationMaster() {
             <DialogTitle>Add New Location</DialogTitle>
             <DialogDescription>Location ID is auto-generated from Rack + Bay + Level + Slot</DialogDescription>
           </DialogHeader>
-          <div className="px-6 space-y-4">
-            <div className="grid grid-cols-2 gap-3">
+          <div className="px-6 space-y-4 max-h-[70vh] overflow-y-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label>Rack</Label>
                 <Select value={newLoc.rack} onValueChange={v => setNewLoc(f => ({ ...f, rack: v }))}>
@@ -225,7 +229,7 @@ export default function LocationMaster() {
             <DialogTitle>Assign Material</DialogTitle>
             <DialogDescription>Assign a material to <span className="font-mono text-primary">{assignOpen}</span></DialogDescription>
           </DialogHeader>
-          <div className="px-6 space-y-4">
+          <div className="px-6 space-y-4 max-h-[70vh] overflow-y-auto">
             <div className="space-y-1.5">
               <Label>Select Material</Label>
               <Select value={assignMatId} onValueChange={setAssignMatId}>
@@ -250,7 +254,7 @@ export default function LocationMaster() {
             <DialogTitle>Advanced Assign Material</DialogTitle>
             <DialogDescription>Select material and drill down to an available physical slot</DialogDescription>
           </DialogHeader>
-          <div className="px-6 space-y-4">
+          <div className="px-6 space-y-4 max-h-[70vh] overflow-y-auto">
             <div className="space-y-1.5">
               <Label>Select Material</Label>
               <Input 
@@ -266,7 +270,7 @@ export default function LocationMaster() {
               </datalist>
             </div>
             
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label>1. Rack</Label>
                 <Select value={gaRack} onValueChange={v => { setGaRack(v); setGaBay(""); setGaLevel(""); setGaSlot("") }}>

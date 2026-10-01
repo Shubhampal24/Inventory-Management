@@ -59,12 +59,12 @@ export default function MaterialMaster() {
     <div className="space-y-4 animate-fade-in-up">
       <Card className="glass">
         <CardHeader className="pb-3">
-          <div className="flex flex-wrap items-center gap-3">
-            <CardTitle className="flex items-center gap-2 flex-1">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <CardTitle className="flex items-center gap-2">
               <Database size={16} className="text-primary"/>
-              Material Master ({filtered.length} materials)
+              Material Master ({filtered.length})
             </CardTitle>
-            <Button onClick={openAdd}><Plus size={15}/> Add Material</Button>
+            <Button onClick={openAdd} className="w-full sm:w-auto"><Plus size={15}/> Add Material</Button>
           </div>
           {/* Filters */}
           <div className="flex flex-wrap gap-2 mt-2">
@@ -72,51 +72,53 @@ export default function MaterialMaster() {
               <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search ID or description..." className="pl-9" />
             </div>
-            <div className="flex flex-wrap gap-1">
+            <div className="flex items-center gap-1.5 overflow-x-auto max-w-full pb-1 no-scrollbar sm:flex-wrap">
               <button
                 onClick={() => setCatFilter("all")}
-                className={`px-3 py-1.5 rounded-lg text-xs border transition-all ${catFilter === "all" ? "bg-primary/20 border-primary/50 text-primary" : "border-border text-muted-foreground hover:border-primary/30"}`}
+                className={`px-3 py-1.5 rounded-lg text-xs border transition-all shrink-0 whitespace-nowrap ${catFilter === "all" ? "bg-primary/20 border-primary/50 text-primary" : "border-border text-muted-foreground hover:border-primary/30"}`}
               >All</button>
               {CATEGORIES.map(c => (
                 <button key={c} onClick={() => setCatFilter(c)}
-                  className={`px-3 py-1.5 rounded-lg text-xs border transition-all ${catFilter === c ? "bg-primary/20 border-primary/50 text-primary" : "border-border text-muted-foreground hover:border-primary/30"}`}
+                  className={`px-3 py-1.5 rounded-lg text-xs border transition-all shrink-0 whitespace-nowrap ${catFilter === c ? "bg-primary/20 border-primary/50 text-primary" : "border-border text-muted-foreground hover:border-primary/30"}`}
                 >{c}</button>
               ))}
             </div>
           </div>
         </CardHeader>
         <CardContent className="p-0 overflow-auto">
-          <table className="w-full wms-table min-w-[600px]">
-            <thead>
-              <tr>
-                <th className="text-left">Material ID</th>
-                <th className="text-left">Name</th>
-                <th className="text-left">Description</th>
-                <th>Category</th>
-                <th className="text-center">Unit</th>
-                <th className="text-right">Reorder Level</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map(m => (
-                <tr key={m.id}>
-                  <td className="font-mono text-xs text-primary">{m.id}</td>
-                  <td className="font-medium text-foreground">{m.name || m.description}</td>
-                  <td className="text-muted-foreground max-w-[200px] truncate text-xs">{m.description}</td>
-                  <td className="text-center"><CategoryBadge category={m.category} /></td>
-                  <td className="text-center font-mono text-xs text-muted-foreground">{m.unit}</td>
-                  <td className="text-right font-mono text-sm text-amber-400">{m.reorderLevel}</td>
-                  <td className="text-right">
-                    <div className="flex items-center gap-1 justify-end">
-                      <button onClick={() => openEdit(m)} className="text-muted-foreground hover:text-primary p-1 transition-colors"><Pencil size={13}/></button>
-                      <button onClick={() => handleDelete(m.id)} className="text-muted-foreground hover:text-destructive p-1 transition-colors"><Trash2 size={13}/></button>
-                    </div>
-                  </td>
+          <div className="overflow-x-auto w-full">
+            <table className="w-full wms-table min-w-[600px]">
+              <thead>
+                <tr>
+                  <th className="text-left">Material ID</th>
+                  <th className="text-left">Name</th>
+                  <th className="text-left">Description</th>
+                  <th>Category</th>
+                  <th className="text-center">Unit</th>
+                  <th className="text-right">Reorder Level</th>
+                  <th></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filtered.map(m => (
+                  <tr key={m.id}>
+                    <td className="font-mono text-xs text-primary">{m.id}</td>
+                    <td className="font-medium text-foreground">{m.name || m.description}</td>
+                    <td className="text-muted-foreground max-w-[200px] truncate text-xs">{m.description}</td>
+                    <td className="text-center"><CategoryBadge category={m.category} /></td>
+                    <td className="text-center font-mono text-xs text-muted-foreground">{m.unit}</td>
+                    <td className="text-right font-mono text-sm text-amber-400">{m.reorderLevel}</td>
+                    <td className="text-right">
+                      <div className="flex items-center gap-1 justify-end">
+                        <button onClick={() => openEdit(m)} className="text-muted-foreground hover:text-primary p-1 transition-colors"><Pencil size={13}/></button>
+                        <button onClick={() => handleDelete(m.id)} className="text-muted-foreground hover:text-destructive p-1 transition-colors"><Trash2 size={13}/></button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </CardContent>
       </Card>
 
@@ -129,8 +131,8 @@ export default function MaterialMaster() {
               {editing ? `Editing ${editing}` : "New material will be added to the Material Master."}
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleSubmit} className="px-6 space-y-4">
-            <div className="grid grid-cols-2 gap-3">
+          <form onSubmit={handleSubmit} className="px-6 space-y-4 max-h-[70vh] overflow-y-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label>Material ID <span className="text-destructive">*</span></Label>
                 <Input value={form.id} onChange={e => setForm(f => ({ ...f, id: e.target.value.toUpperCase() }))}
@@ -152,7 +154,7 @@ export default function MaterialMaster() {
               <Label>Description</Label>
               <Input value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Optional detailed description" />
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label>Category <span className="text-destructive">*</span></Label>
                 <Select value={form.category} onValueChange={v => setForm(f => ({ ...f, category: v }))} required>
@@ -165,7 +167,7 @@ export default function MaterialMaster() {
                   Reorder Level
                   <div className="group relative flex items-center">
                     <Info size={14} className="text-muted-foreground cursor-help" />
-                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden w-56 p-2 bg-popover text-popover-foreground text-xs rounded shadow-xl border border-border group-hover:block z-50 text-center">
+                    <div className="absolute bottom-full sm:left-1/2 sm:-translate-x-1/2 right-0 mb-2 hidden w-56 p-2 bg-popover text-popover-foreground text-xs rounded shadow-xl border border-border group-hover:block z-50 text-center">
                       Minimum stock threshold. When stock falls below this quantity, a "REORDER" alert will trigger on the dashboard.
                     </div>
                   </div>

@@ -16,10 +16,10 @@ import {
 
 function KPICard({ title, value, sub, icon: Icon, color, trend, onClick }) {
   const colors = {
-    blue:   { bg: "from-blue-600/20 to-blue-500/5",   icon: "bg-blue-500/20 text-blue-400",  border: "border-blue-500/20" },
-    green:  { bg: "from-emerald-600/20 to-emerald-500/5", icon: "bg-emerald-500/20 text-emerald-400", border: "border-emerald-500/20" },
-    amber:  { bg: "from-amber-600/20 to-amber-500/5",  icon: "bg-amber-500/20 text-amber-400",  border: "border-amber-500/20" },
-    cyan:   { bg: "from-cyan-600/20 to-cyan-500/5",    icon: "bg-cyan-500/20 text-cyan-400",    border: "border-cyan-500/20" },
+    blue:   { bg: "from-blue-500/10 to-blue-500/5 dark:from-blue-600/20 dark:to-blue-500/5",   icon: "bg-blue-500/15 text-blue-600 dark:text-blue-400",  border: "border-blue-500/20" },
+    green:  { bg: "from-emerald-500/10 to-emerald-500/5 dark:from-emerald-600/20 dark:to-emerald-500/5", icon: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400", border: "border-emerald-500/20" },
+    amber:  { bg: "from-amber-500/10 to-amber-500/5 dark:from-amber-600/20 dark:to-amber-500/5",  icon: "bg-amber-500/15 text-amber-600 dark:text-amber-400",  border: "border-amber-500/20" },
+    cyan:   { bg: "from-cyan-500/10 to-cyan-500/5 dark:from-cyan-600/20 dark:to-cyan-500/5",    icon: "bg-cyan-500/15 text-cyan-600 dark:text-cyan-400",    border: "border-cyan-500/20" },
   }
   const c = colors[color] || colors.blue
   return (
@@ -32,7 +32,7 @@ function KPICard({ title, value, sub, icon: Icon, color, trend, onClick }) {
           <Icon size={20} />
         </div>
         {trend !== undefined && (
-          <span className={`text-xs font-semibold flex items-center gap-1 ${trend >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+          <span className={`text-xs font-semibold flex items-center gap-1 ${trend >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}>
             {trend >= 0 ? <TrendingUp size={12}/> : <TrendingDown size={12}/>}
             {Math.abs(trend)}%
           </span>
@@ -50,7 +50,7 @@ const CHART_COLORS = Object.values(CATEGORY_COLORS).map(c => c.dot)
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null
   return (
-    <div className="rounded-xl border border-border bg-card p-3 shadow-xl text-xs">
+    <div className="rounded-xl border border-border bg-card p-3 shadow-xl text-xs text-foreground">
       <p className="text-muted-foreground mb-1">{label}</p>
       {payload.map(p => (
         <p key={p.name} style={{ color: p.color }} className="font-semibold">
@@ -123,7 +123,7 @@ export default function Dashboard() {
   return (
     <div className="space-y-6 animate-fade-in-up">
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 stagger">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 stagger">
         <KPICard
           title="Active Materials" value={stats.totalMaterials} sub={`across ${stats.totalLocations} locations`}
           icon={Package} color="blue" onClick={() => navigate("/inventory")}
@@ -228,23 +228,25 @@ export default function Dashboard() {
                 <CheckCircle2 size={16}/> All stock levels are healthy
               </div>
             ) : (
-              <table className="w-full wms-table">
-                <thead><tr><th className="text-left">Material</th><th>Stock</th><th>Status</th></tr></thead>
-                <tbody>
-                  {reorderItems.slice(0, 6).map(item => (
-                    <tr key={item.materialId}>
-                      <td>
-                        <p className="font-medium text-foreground truncate max-w-[150px]">{item.materialDesc}</p>
-                        <LocationBadge locationId={item.locationId} className="mt-0.5" />
-                      </td>
-                      <td className="text-center font-mono text-sm">
-                        {item.currentStock.toFixed(2)} <span className="text-muted-foreground">{item.unit}</span>
-                      </td>
-                      <td className="text-right"><StockBadge status={item.status} /></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <div className="overflow-x-auto w-full">
+                <table className="w-full wms-table">
+                  <thead><tr><th className="text-left">Material</th><th>Stock</th><th>Status</th></tr></thead>
+                  <tbody>
+                    {reorderItems.slice(0, 6).map(item => (
+                      <tr key={item.materialId}>
+                        <td>
+                          <p className="font-medium text-foreground truncate max-w-[150px]">{item.materialDesc}</p>
+                          <LocationBadge locationId={item.locationId} className="mt-0.5" />
+                        </td>
+                        <td className="text-center font-mono text-sm">
+                          {item.currentStock.toFixed(2)} <span className="text-muted-foreground">{item.unit}</span>
+                        </td>
+                        <td className="text-right"><StockBadge status={item.status} /></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </CardContent>
         </Card>
@@ -261,26 +263,28 @@ export default function Dashboard() {
             </Button>
           </CardHeader>
           <CardContent className="p-0">
-            <table className="w-full wms-table">
-              <thead><tr><th className="text-left">Material</th><th>Qty</th><th>Type</th><th>Date</th></tr></thead>
-              <tbody>
-                {recentMovs.map(m => (
-                  <tr key={m.id}>
-                    <td>
-                      <p className="font-medium text-foreground truncate max-w-[130px]">{m.materialDesc || m.materialId}</p>
-                      <p className="text-[11px] text-muted-foreground">{m.user}</p>
-                    </td>
-                    <td className="text-center font-mono text-sm">{m.quantity} <span className="text-muted-foreground text-xs">{m.unit}</span></td>
-                    <td className="text-center">
-                      <span className={`text-xs font-bold px-2 py-0.5 rounded-md ${m.type === "IN" ? "bg-emerald-500/15 text-emerald-400" : "bg-red-500/15 text-red-400"}`}>
-                        {m.type}
-                      </span>
-                    </td>
-                    <td className="text-right text-xs text-muted-foreground">{formatDate(m.date)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="overflow-x-auto w-full">
+              <table className="w-full wms-table">
+                <thead><tr><th className="text-left">Material</th><th>Qty</th><th>Type</th><th>Date</th></tr></thead>
+                <tbody>
+                  {recentMovs.map(m => (
+                    <tr key={m.id}>
+                      <td>
+                        <p className="font-medium text-foreground truncate max-w-[130px]">{m.materialDesc || m.materialId}</p>
+                        <p className="text-[11px] text-muted-foreground">{m.user}</p>
+                      </td>
+                      <td className="text-center font-mono text-sm">{m.quantity} <span className="text-muted-foreground text-xs">{m.unit}</span></td>
+                      <td className="text-center">
+                        <span className={`text-xs font-bold px-2 py-0.5 rounded-md ${m.type === "IN" ? "bg-emerald-500/15 text-emerald-400" : "bg-red-500/15 text-red-400"}`}>
+                          {m.type}
+                        </span>
+                      </td>
+                      <td className="text-right text-xs text-muted-foreground">{formatDate(m.date)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </CardContent>
         </Card>
       </div>

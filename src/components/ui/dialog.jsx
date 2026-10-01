@@ -11,7 +11,7 @@ export function Dialog({ open, onOpenChange, children }) {
       {open && typeof document !== 'undefined' && createPortal(
         <div className="fixed inset-0 z-[49] flex items-center justify-center p-4">
           <div
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm animate-fade-in-up"
+            className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm animate-fade-in-up"
             onClick={() => onOpenChange?.(false)}
           />
         </div>,
