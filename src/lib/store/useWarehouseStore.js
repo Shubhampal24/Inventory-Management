@@ -499,41 +499,57 @@ const useWarehouseStore = create(
             const state = get()
             const payload = {
               action: "full_sync",
-              racks: state.racks || [],
-              materials: state.materialMasterBase || [],
+              racks: (state.racks || []).map(r => ({
+                id: r.id || "",
+                type: r.type || "",
+                description: r.description || "",
+                bayCount: r.bayCount || 1,
+                levels: Array.isArray(r.levels) ? r.levels.join(",") : (r.levels || ""),
+                slots: Array.isArray(r.slots) ? r.slots.join(",") : (r.slots || ""),
+                side: r.side || "",
+                status: r.status || ""
+              })),
+              materials: (state.materialMasterBase || []).map(m => ({
+                id: m.id || "",
+                name: m.name || "",
+                description: m.description || "",
+                category: m.category || "",
+                unit: m.unit || "",
+                reorderLevel: m.reorderLevel || 0
+              })),
               locations: (state.locations || []).map(l => ({
-                locationId: l.locationId,
-                rack: l.rack,
-                bay: l.bay,
-                level: l.level,
-                slot: l.slot,
-                status: l.status,
-                materialId: l.materialId,
+                locationId: l.locationId || "",
+                rack: l.rack || "",
+                bay: l.bay || 1,
+                level: l.level || "",
+                slot: l.slot || "",
+                status: l.status || "",
+                materialId: l.materialId || "",
                 materialName: l.materialDesc || "",
                 batch: l.batch || ""
               })),
               movements: (state.enrichedMovements || []).map(m => ({
-                id: m.id,
-                date: m.date,
-                type: m.type,
-                materialId: m.materialId,
+                id: m.id || "",
+                date: m.date || "",
+                type: m.type || "",
+                materialId: m.materialId || "",
                 materialName: m.materialDesc || "",
-                locationId: m.locationId,
-                quantity: m.quantity,
-                unit: m.unit,
-                user: m.user,
-                reference: m.reference,
-                notes: m.notes
+                locationId: m.locationId || "",
+                quantity: m.quantity || 0,
+                unit: m.unit || "",
+                user: m.user || "",
+                reference: m.reference || "",
+                notes: m.notes || ""
               })),
               inventory: (state.inventory || []).map(i => ({
-                materialId: i.materialId,
+                materialId: i.materialId || "",
                 materialName: i.materialDesc || "",
-                locationId: i.locationId,
-                openingStock: i.openingStock,
-                stockIn: i.stockIn,
-                stockOut: i.stockOut,
-                currentStock: i.currentStock,
-                status: i.status
+                locationId: i.locationId || "",
+                openingStock: i.openingStock || 0,
+                stockIn: i.stockIn || 0,
+                stockOut: i.stockOut || 0,
+                currentStock: i.currentStock || 0,
+                status: i.status || ""
               })),
             }
             
