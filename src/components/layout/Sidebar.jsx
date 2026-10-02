@@ -31,7 +31,7 @@ export function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) 
   const location = useLocation()
   // Select raw primitives — NOT function calls — to avoid infinite re-render loop
   // (calling s.getInventoryStats() inside selector creates new object every render)
-  const reorderAlerts = useWarehouseStore(s => (s.inventory ?? []).filter(i => i.status === 'REORDER').length)
+  const reorderAlerts = useWarehouseStore(s => (s.inventory ?? []).filter(i => i.status === 'REORDER' || i.status === 'EMPTY').length)
 
   return (
     <>

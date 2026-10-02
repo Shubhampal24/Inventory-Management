@@ -47,7 +47,7 @@ export default function RackManager() {
   }
 
   const handleSubmit = (e) => {
-    e.preventDefault()
+    e?.preventDefault()
     if (editingRackId) {
       const minBay = getMaxOccupiedBay(editingRackId)
       if (Number(form.bayCount) < minBay) {
@@ -81,6 +81,16 @@ export default function RackManager() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        {racks.length === 0 && (
+          <div className="col-span-full flex flex-col items-center justify-center py-20 text-center">
+            <div className="w-16 h-16 rounded-2xl bg-secondary/30 border border-border flex items-center justify-center mb-4">
+              <Layers size={28} className="text-muted-foreground/40" />
+            </div>
+            <p className="text-sm font-semibold text-foreground">No racks configured</p>
+            <p className="text-xs text-muted-foreground mt-1 mb-4">Add your first physical rack to start building your warehouse layout.</p>
+            <Button onClick={openAdd}><Plus size={14}/> Add First Rack</Button>
+          </div>
+        )}
         {racks.map(rack => {
           const stats = getRackStats(rack.id)
           const pct = stats.total > 0 ? Math.round((stats.occupied / stats.total) * 100) : 0
@@ -132,7 +142,7 @@ export default function RackManager() {
                     <Pencil size={13} className="mr-1" /> Edit
                   </Button>
                   <Button size="sm" variant="outline" className="flex-1" onClick={() => toggleStatus(rack.id, rack.status)}>
-                    {rack.status === "Active" ? "Set Inactive" : "Set Active"}
+                    {rack.status === "Active" ? "Archive" : "Restore"}
                   </Button>
                 </div>
               </CardContent>
@@ -151,24 +161,24 @@ export default function RackManager() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label>Rack ID <span className="text-destructive">*</span></Label>
-                <Input value={form.id} onChange={e => setForm(f => ({ ...f, id: e.target.value.toUpperCase() }))} placeholder="e.g. R11" className="font-mono" required disabled={!!editingRackId} />
+                <Input value={form.id} onChange={e => setForm({ ...form, id: e.target.value.toUpperCase() })} placeholder="e.g. R11" className="font-mono" required disabled={!!editingRackId} />
               </div>
               <div className="space-y-1.5">
                 <Label>Bay Count</Label>
-                <Input type="number" min="1" max="20" value={form.bayCount} onChange={e => setForm(f => ({ ...f, bayCount: e.target.value }))} />
+                <Input type="number" min="1" max="20" value={form.bayCount} onChange={e => setForm({ ...form, bayCount: e.target.value })} />
               </div>
             </div>
             <div className="space-y-1.5">
               <Label>Description</Label>
-              <Input value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="e.g. Rack 11 (4 Bays, 6 Levels)" />
+              <Input value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder="e.g. Rack 11 (4 Bays, 6 Levels)" />
             </div>
             <div className="space-y-1.5">
               <Label>Levels (comma separated)</Label>
-              <Input value={form.levels} onChange={e => setForm(f => ({ ...f, levels: e.target.value.toUpperCase() }))} placeholder="e.g. GL1, GL2, SL3" />
+              <Input value={form.levels} onChange={e => setForm({ ...form, levels: e.target.value.toUpperCase() })} placeholder="e.g. GL1, GL2, SL3" />
             </div>
             <div className="space-y-1.5">
               <Label>Slots per Level (comma separated)</Label>
-              <Input value={form.slots} onChange={e => setForm(f => ({ ...f, slots: e.target.value.toUpperCase() }))} placeholder="e.g. A, B, C" />
+              <Input value={form.slots} onChange={e => setForm({ ...form, slots: e.target.value.toUpperCase() })} placeholder="e.g. A, B, C" />
               <p className="text-[10px] text-muted-foreground mt-1">
                 Auto-generates physical locations (e.g. {form.id || "R11"}-B01-{(form.levels||"").split(",")[0]?.trim() || "GL1"}-{(form.slots||"").split(",")[0]?.trim() || "A"})
               </p>

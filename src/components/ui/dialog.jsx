@@ -6,17 +6,9 @@ import { X } from "lucide-react"
 const DialogContext = React.createContext({})
 
 export function Dialog({ open, onOpenChange, children }) {
+  const value = React.useMemo(() => ({ open, onOpenChange }), [open, onOpenChange])
   return (
-    <DialogContext.Provider value={{ open, onOpenChange }}>
-      {open && typeof document !== 'undefined' && createPortal(
-        <div className="fixed inset-0 z-[49] flex items-center justify-center p-4">
-          <div
-            className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm animate-fade-in-up"
-            onClick={() => onOpenChange?.(false)}
-          />
-        </div>,
-        document.body
-      )}
+    <DialogContext.Provider value={value}>
       {children}
     </DialogContext.Provider>
   )
@@ -29,18 +21,25 @@ export function DialogContent({ className, children, ...props }) {
   if (typeof document === 'undefined') return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div
+        className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm animate-fade-in-up"
+        onClick={() => onOpenChange?.(false)}
+      />
+      {/* Modal Container */}
       <div
         className={cn(
-          "relative bg-card border border-border rounded-2xl shadow-2xl w-full max-w-lg pointer-events-auto",
+          "relative bg-card border border-border rounded-2xl shadow-2xl w-full max-w-lg z-10",
           "animate-fade-in-up max-h-[90vh] overflow-y-auto",
           className
         )}
         {...props}
       >
         <button
+          type="button"
           onClick={() => onOpenChange?.(false)}
-          className="absolute right-4 top-4 z-10 rounded-full p-1.5 text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors"
+          className="absolute right-4 top-4 z-20 rounded-full p-1.5 text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors"
         >
           <X size={16} />
         </button>

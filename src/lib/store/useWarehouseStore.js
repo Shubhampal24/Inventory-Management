@@ -655,7 +655,11 @@ const useWarehouseStore = create(
           const invItem = (get().inventory || []).find(i => i.locationId === locationId)
           const loc = (get().locations || []).find(l => l.locationId === locationId)
           if (!loc) return 'unassigned'
-          if (!invItem || invItem.currentStock <= 0) return 'available'
+          if (!invItem || invItem.currentStock <= 0) {
+            // Has a material assigned but no stock yet — Allocated (reserved)
+            if (loc.materialId) return 'allocated'
+            return 'available'
+          }
           if (invItem.status === 'REORDER') return 'reorder'
           if (invItem.status === 'EMPTY') return 'empty-crit'
           return 'occupied'

@@ -78,7 +78,7 @@ export default function Dashboard() {
       totalLocations: locations.length,
       occupiedLocations: locations.filter(l => l.status === 'Occupied').length,
       availableLocations: locations.filter(l => l.status === 'Available').length,
-      reorderAlerts: inventory.filter(i => i.status === 'REORDER').length,
+      reorderAlerts: inventory.filter(i => i.status === 'REORDER' || i.status === 'EMPTY').length,
       emptyAlerts: inventory.filter(i => i.status === 'EMPTY').length,
       todayMovements: movements.filter(m => m.date === today).length,
       totalIn: movements.filter(m => m.type === 'IN').reduce((s, m) => s + m.quantity, 0),
@@ -115,7 +115,7 @@ export default function Dashboard() {
   }, [inventory])
 
   const reorderItems = React.useMemo(() => inventory.filter(i => i.status === 'REORDER' || i.status === 'EMPTY'), [inventory])
-  const recentMovs   = React.useMemo(() => [...enrichedMovements].reverse().slice(0, 6), [enrichedMovements])
+  const recentMovs   = React.useMemo(() => [...enrichedMovements].sort((a, b) => (b.date || "").localeCompare(a.date || "")).slice(0, 6), [enrichedMovements])
   const topLocations = React.useMemo(() => locations.filter(l => l.status === 'Occupied').slice(0, 5), [locations])
 
 

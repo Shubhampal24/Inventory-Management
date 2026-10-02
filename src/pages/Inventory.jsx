@@ -79,16 +79,16 @@ export default function Inventory() {
       {/* Status summary */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {[
-          { label: "OK", count: stats.ok, color: "emerald" },
-          { label: "REORDER", count: stats.reorder, color: "amber" },
-          { label: "EMPTY", count: stats.empty, color: "red" },
+          { label: "OK",      count: stats.ok,      activeBg: "bg-emerald-500/15 border-emerald-500/40", numColor: "text-emerald-600 dark:text-emerald-400" },
+          { label: "REORDER", count: stats.reorder,  activeBg: "bg-amber-500/15 border-amber-500/40",   numColor: "text-amber-600 dark:text-amber-400"   },
+          { label: "EMPTY",   count: stats.empty,    activeBg: "bg-red-500/15 border-red-500/40",       numColor: "text-red-600 dark:text-red-400"       },
         ].map(s => (
           <button
             key={s.label}
             onClick={() => setStatusFilter(statusFilter === s.label ? "all" : s.label)}
-            className={`rounded-xl border p-3 text-left transition-all ${statusFilter === s.label ? `bg-${s.color}-500/15 border-${s.color}-500/40` : "glass border-border hover:border-primary/30"}`}
+            className={`rounded-xl border p-3 text-left transition-all ${statusFilter === s.label ? s.activeBg : "glass border-border hover:border-primary/30"}`}
           >
-            <p className={`text-2xl font-bold text-${s.color}-600 dark:text-${s.color}-400`}>{s.count}</p>
+            <p className={`text-2xl font-bold ${s.numColor}`}>{s.count}</p>
             <p className="text-xs text-muted-foreground">{s.label}</p>
           </button>
         ))}
@@ -158,7 +158,7 @@ export default function Inventory() {
               </thead>
               <tbody>
                 {filtered.map(item => (
-                  <tr key={item.materialId} className="cursor-pointer" onClick={() => navigate("/movements")}>
+                  <tr key={item.materialId} className="cursor-pointer" onClick={() => navigate("/movements", { state: { materialId: item.materialId } })}>
                     <td>
                       <p className="font-medium text-foreground">{item.materialDesc}</p>
                       <p className="text-[11px] font-mono text-muted-foreground">{item.materialId}</p>
@@ -179,6 +179,25 @@ export default function Inventory() {
                   <tr><td colSpan={8} className="text-center py-12 text-muted-foreground text-sm">No items match your filters</td></tr>
                 )}
               </tbody>
+              {filtered.length > 0 && (
+                <tfoot>
+                  <tr className="border-t-2 border-border bg-secondary/20">
+                    <td colSpan={3} className="py-3 px-4 text-xs font-semibold text-muted-foreground">TOTALS ({filtered.length} items)</td>
+                    <td className="text-right py-3 px-4 font-mono text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                      {filtered.reduce((s, i) => s + (i.stockIn ?? 0), 0).toFixed(0)}
+                    </td>
+                    <td className="text-right py-3 px-4 font-mono text-sm font-bold text-red-600 dark:text-red-400">
+                      {filtered.reduce((s, i) => s + (i.stockOut ?? 0), 0).toFixed(0)}
+                    </td>
+                    <td className="text-right py-3 px-4">
+                      <span className="font-mono font-bold text-foreground">
+                        {filtered.reduce((s, i) => s + (i.currentStock ?? 0), 0).toFixed(2)}
+                      </span>
+                    </td>
+                    <td colSpan={2}></td>
+                  </tr>
+                </tfoot>
+              )}
             </table>
           </div>
         </CardContent>

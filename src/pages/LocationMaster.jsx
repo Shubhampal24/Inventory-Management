@@ -30,7 +30,8 @@ export default function LocationMaster() {
   const [assignMatId, setAssignMatId] = React.useState("")
   const [assignSearch, setAssignSearch] = React.useState("")
   const [newLoc, setNewLoc] = React.useState({ rack: "R01", bay: 1, level: "GL1", slot: "A", materialId: "", batch: "", notes: "" })
-
+  const [page, setPage] = React.useState(1)
+  const PAGE_SIZE = 25
   const cleanAssignMatId = assignMatId ? (assignMatId.includes(" (") ? assignMatId.split(" (")[0].trim() : assignMatId.trim()) : ""
   const selectedAssignMat = materials.find(m => m.id === cleanAssignMatId || m.id === assignMatId)
 
@@ -59,10 +60,15 @@ export default function LocationMaster() {
            (statusFilter === "all" ? true : statusFilter === "NotAvailable" ? l.status !== "Available" : l.status === statusFilter)
   })
 
+  // Reset to page 1 whenever filters change
+  React.useEffect(() => { setPage(1) }, [search, rackFilter, statusFilter])
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+
   // Cascading lists for Global Assign
   const gaBays = [...new Set(locations.filter(l => l.rack === gaRack).map(l => l.bay))]
   const gaLevels = [...new Set(locations.filter(l => l.rack === gaRack && String(l.bay) === String(gaBay)).map(l => l.level))]
-  const gaSlots = locations.filter(l => l.rack === gaRack && String(l.bay) === String(gaBay) && l.level === gaLevel && l.status === "Available")
+  const gaSlots = locations.filter(l => l.rack === gaRack && String(l.bay) === String(gaBay) && l.level === gaLevel && (l.status === "Available" || l.status === "Allocated"))
 
   const previewId = computeLocationId(newLoc.rack, newLoc.bay, newLoc.level, newLoc.slot)
 
@@ -165,6 +171,15 @@ export default function LocationMaster() {
               </Select>
             </div>
           </div>
+          {/* UX-001: Active filter hint */}
+          {statusFilter === "NotAvailable" && (
+            <div className="flex items-center gap-2 mt-2 px-1">
+              <span className="inline-flex items-center gap-1.5 text-[11px] text-amber-600 dark:text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-lg px-2.5 py-1">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                Showing occupied &amp; assigned only — <button onClick={() => setStatusFilter("all")} className="underline underline-offset-2 font-semibold hover:text-amber-500 transition-colors">Show all slots</button>
+              </span>
+            </div>
+          )}
         </CardHeader>
         <CardContent className="p-0 overflow-auto">
           <div className="overflow-x-auto w-full">
@@ -181,15 +196,21 @@ export default function LocationMaster() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map(l => (
+                {paginated.map(l => (
                   <tr key={l.locationId}>
                     <td><LocationBadge locationId={l.locationId} /></td>
                     <td className="text-center font-mono text-xs">{l.rack}</td>
-                    <td className="text-center font-mono text-xs">{String(l.bay).padStart(2,"0")}</td>
+                    <td className="text-center font-mono text-xs">{String(l.bay).padStart(2,"00")}</td>
                     <td className="text-center font-mono text-xs">{l.level}</td>
                     <td className="text-center font-mono text-xs">{l.slot}</td>
                     <td className="text-center">
-                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-md ${l.status === "Occupied" ? "bg-blue-500/15 text-blue-400" : "bg-emerald-500/15 text-emerald-400"}`}>
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-md ${
+                        l.status === "Occupied"
+                          ? "bg-blue-500/15 text-blue-400"
+                          : l.status === "Allocated"
+                          ? "bg-purple-500/15 text-purple-400"
+                          : "bg-emerald-500/15 text-emerald-400"
+                      }`}>
                         {l.status}
                       </span>
                     </td>
@@ -215,9 +236,43 @@ export default function LocationMaster() {
                     </td>
                   </tr>
                 ))}
+                {paginated.length === 0 && (
+                  <tr><td colSpan={9} className="text-center py-12 text-muted-foreground text-sm">No locations match your filters</td></tr>
+                )}
               </tbody>
             </table>
           </div>
+          {/* UX-010: Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between px-4 py-3 border-t border-border/60">
+              <p className="text-xs text-muted-foreground">
+                Showing {((page - 1) * PAGE_SIZE) + 1}–{Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length} locations
+              </p>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className="px-3 py-1.5 rounded-lg text-xs border border-border text-muted-foreground hover:text-foreground hover:bg-secondary/50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                >← Prev</button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 1).map((p, idx, arr) => (
+                  <React.Fragment key={p}>
+                    {idx > 0 && arr[idx - 1] !== p - 1 && <span className="px-1 text-muted-foreground text-xs">…</span>}
+                    <button
+                      onClick={() => setPage(p)}
+                      className={`px-3 py-1.5 rounded-lg text-xs border transition-colors ${
+                        p === page ? "bg-primary/20 border-primary/50 text-primary font-semibold" : "border-border text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+                      }`}
+                    >{p}</button>
+                  </React.Fragment>
+                ))}
+                <button
+                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                  className="px-3 py-1.5 rounded-lg text-xs border border-border text-muted-foreground hover:text-foreground hover:bg-secondary/50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                >Next →</button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -239,7 +294,7 @@ export default function LocationMaster() {
               </div>
               <div className="space-y-1.5">
                 <Label>Bay (number)</Label>
-                <Input type="number" min="1" value={newLoc.bay} onChange={e => setNewLoc(f => ({ ...f, bay: e.target.value }))} />
+                <Input type="number" min="1" value={newLoc.bay} onChange={e => setNewLoc({ ...newLoc, bay: e.target.value })} />
               </div>
               <div className="space-y-1.5">
                 <Label>Level</Label>
@@ -250,7 +305,7 @@ export default function LocationMaster() {
               </div>
               <div className="space-y-1.5">
                 <Label>Slot</Label>
-                <Input value={newLoc.slot} onChange={e => setNewLoc(f => ({ ...f, slot: e.target.value.toUpperCase() }))} placeholder="A, A1, B..." className="font-mono uppercase" />
+                <Input value={newLoc.slot} onChange={e => setNewLoc({ ...newLoc, slot: e.target.value.toUpperCase() })} placeholder="A, A1, B..." className="font-mono uppercase" />
               </div>
             </div>
             {previewId && (
@@ -262,7 +317,7 @@ export default function LocationMaster() {
             )}
             <div className="space-y-1.5">
               <Label>Notes</Label>
-              <Input value={newLoc.notes} onChange={e => setNewLoc(f => ({ ...f, notes: e.target.value }))} placeholder="Optional notes" />
+              <Input value={newLoc.notes} onChange={e => setNewLoc({ ...newLoc, notes: e.target.value })} placeholder="Optional notes" />
             </div>
           </div>
           <DialogFooter>

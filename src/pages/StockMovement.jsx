@@ -12,6 +12,7 @@ import { useToast } from "@/components/ui/toast"
 import { cn, formatDate, UNITS, exportToCSV } from "@/lib/utils"
 import { Plus, ArrowUpCircle, ArrowDownCircle, Search, Trash2, ArrowLeftRight, X, Download } from "lucide-react"
 import { computeLocationId } from "@/lib/store/useWarehouseStore"
+import { useLocation as useRouterLocation } from "react-router-dom"
 
 
 
@@ -50,6 +51,18 @@ export default function StockMovement() {
     user: currentUser,
     notes: ""
   })
+
+  const routerLocation = useRouterLocation()
+
+  // Pre-fill search filter if navigated from Inventory with a materialId
+  React.useEffect(() => {
+    const navState = routerLocation.state
+    if (navState?.materialId) {
+      setSearch(navState.materialId)
+      // Clear the state so navigating back and forward doesn't re-trigger
+      window.history.replaceState({}, '')
+    }
+  }, [routerLocation.state])
 
   React.useEffect(() => {
     if (open) {
@@ -215,7 +228,7 @@ export default function StockMovement() {
   }
 
   const handleSubmit = (e) => {
-    e.preventDefault()
+    e?.preventDefault()
     const cleanMatId = extractMaterialId(form.materialId || form.materialText)
     const qty = parseFloat(form.quantity)
     if (!cleanMatId || !form.locationId || !form.quantity || isNaN(qty) || qty <= 0) {
@@ -307,7 +320,7 @@ export default function StockMovement() {
           <div className="flex flex-wrap gap-2 mt-2">
             <div className="relative flex-1 min-w-[200px]">
               <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-              <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search..." className="pl-9" />
+              <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search material, location, reference..." className="pl-9" />
             </div>
             <div className="flex rounded-lg border border-border overflow-hidden text-sm">
               {["all","IN","OUT"].map(t => (
@@ -361,7 +374,12 @@ export default function StockMovement() {
                     <td className="text-xs text-foreground">{m.user}</td>
                     <td className="text-xs text-muted-foreground max-w-[150px] truncate">{m.notes || "—"}</td>
                     <td>
-                      <button onClick={() => { deleteMovement(m.id); toast({ title: "Movement deleted", variant: "warning" }) }}
+                      <button
+                        onClick={() => {
+                          if (!confirm('Delete this movement? Inventory will update automatically.')) return
+                          deleteMovement(m.id)
+                          toast({ title: "Movement deleted", variant: "warning" })
+                        }}
                         className="text-muted-foreground hover:text-destructive transition-colors p-1">
                         <Trash2 size={13}/>
                       </button>
@@ -384,7 +402,7 @@ export default function StockMovement() {
             <DialogTitle>Add Stock Movement</DialogTitle>
             <DialogDescription>Record a new IN or OUT transaction. Inventory will update automatically.</DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleSubmit} className="px-6 space-y-4 max-h-[70vh] overflow-y-auto">
+          <form id="sm-form" onSubmit={handleSubmit} className="px-6 space-y-4 max-h-[70vh] overflow-y-auto">
             {/* Type toggle */}
             <div>
               <Label className="mb-2 block">Transaction Type</Label>
@@ -407,11 +425,11 @@ export default function StockMovement() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label>Date</Label>
-                <Input type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} required />
+                <Input type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} required />
               </div>
               <div className="space-y-1.5">
                 <Label>User</Label>
-                <Input value={form.user} onChange={e => setForm(f => ({ ...f, user: e.target.value }))} required />
+                <Input value={form.user} onChange={e => setForm({ ...form, user: e.target.value })} required />
               </div>
             </div>
 
@@ -562,20 +580,20 @@ export default function StockMovement() {
 
             <div className="space-y-1.5">
               <Label>Reference (PO / SO number)</Label>
-              <Input value={form.reference} onChange={e => setForm(f => ({ ...f, reference: e.target.value }))} placeholder="e.g. PO-1234 or SO-5678" />
+              <Input value={form.reference} onChange={e => setForm({ ...form, reference: e.target.value })} placeholder="e.g. PO-1234 or SO-5678" />
             </div>
 
             <div className="space-y-1.5">
               <Label>Notes</Label>
-              <Textarea value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} placeholder="Optional notes..." rows={2} />
+              <Textarea value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} placeholder="Optional notes..." rows={2} />
             </div>
           </form>
           <DialogFooter>
             <Button variant="outline" type="button" onClick={() => setOpen(false)}>Cancel</Button>
             <Button
               type="submit"
+              form="sm-form"
               variant={form.type === "IN" ? "success" : "destructive"}
-              onClick={handleSubmit}
             >
               {form.type === "IN" ? "Record IN" : "Record OUT"}
             </Button>

@@ -28,7 +28,7 @@ export default function MaterialMaster() {
 
   const filtered = materials.filter(m => {
     const q = search.toLowerCase()
-    return (!q || m.id.toLowerCase().includes(q) || m.description.toLowerCase().includes(q)) &&
+    return (!q || m.id.toLowerCase().includes(q) || (m.name || m.description || "").toLowerCase().includes(q) || (m.description || "").toLowerCase().includes(q)) &&
            (catFilter === "all" || m.category === catFilter)
   })
 
@@ -36,7 +36,7 @@ export default function MaterialMaster() {
   const openEdit = (m) => { setEditing(m.id); setForm({ id: m.id, name: m.name || m.description, description: m.description, category: m.category, unit: m.unit, reorderLevel: m.reorderLevel }); setOpen(true) }
 
   const handleSubmit = (e) => {
-    e.preventDefault()
+    e?.preventDefault()
     if (!form.id || !form.name) { toast({ title: "ID and Name required", variant: "destructive" }); return }
     if (editing) {
       updateMaterial(editing, { name: form.name, description: form.description, category: form.category, unit: form.unit, reorderLevel: Number(form.reorderLevel) })
@@ -99,7 +99,7 @@ export default function MaterialMaster() {
           <div className="flex flex-wrap gap-2 mt-2">
             <div className="relative flex-1 min-w-[200px]">
               <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-              <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search ID or description..." className="pl-9" />
+              <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search ID or name..." className="pl-9" />
             </div>
             <div className="flex items-center gap-1.5 overflow-x-auto max-w-full pb-1 no-scrollbar sm:flex-wrap">
               <button
@@ -160,11 +160,11 @@ export default function MaterialMaster() {
               {editing ? `Editing ${editing}` : "New material will be added to the Material Master."}
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleSubmit} className="px-6 space-y-4 max-h-[70vh] overflow-y-auto">
+          <form id="material-form" onSubmit={handleSubmit} className="px-6 space-y-4 max-h-[70vh] overflow-y-auto">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label className="flex items-center h-5">Material ID <span className="text-destructive ml-0.5">*</span></Label>
-                <Input value={form.id} onChange={e => setForm(f => ({ ...f, id: e.target.value.toUpperCase() }))}
+                <Input value={form.id} onChange={e => setForm({ ...form, id: e.target.value.toUpperCase() })}
                   placeholder="e.g. MAT050" disabled={!!editing} className="font-mono w-full" required />
               </div>
               <div className="space-y-1.5">
@@ -177,11 +177,11 @@ export default function MaterialMaster() {
             </div>
             <div className="space-y-1.5">
               <Label>Material Name <span className="text-destructive">*</span></Label>
-              <Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value.toUpperCase() }))} placeholder="Material Name" required />
+              <Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value.toUpperCase() })} placeholder="Material Name" required />
             </div>
             <div className="space-y-1.5">
               <Label>Description</Label>
-              <Input value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Optional detailed description" />
+              <Input value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder="Optional detailed description" />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
@@ -201,14 +201,14 @@ export default function MaterialMaster() {
                     </div>
                   </div>
                 </Label>
-                <Input type="number" min="0" value={form.reorderLevel} onChange={e => setForm(f => ({ ...f, reorderLevel: e.target.value }))} className="w-full" />
+                <Input type="number" min="0" value={form.reorderLevel} onChange={e => setForm({ ...form, reorderLevel: e.target.value })} className="w-full" />
               </div>
             </div>
 
           </form>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-            <Button onClick={handleSubmit}>{editing ? "Save Changes" : "Add Material"}</Button>
+            <Button type="submit" form="material-form">{editing ? "Save Changes" : "Add Material"}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

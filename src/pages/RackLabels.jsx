@@ -157,6 +157,13 @@ export default function RackLabels() {
               <Printer size={14}/> Print {selected.size > 0 ? `(${selected.size})` : ""}
             </Button>
           </div>
+          {/* UX-007: QR code disclaimer */}
+          <div className="mt-3 flex items-start gap-2 rounded-lg bg-amber-500/8 border border-amber-500/20 px-3 py-2">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-amber-500 shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <p className="text-[11px] text-amber-600 dark:text-amber-400">
+              <span className="font-semibold">Note:</span> The QR patterns shown are visual placeholders seeded by Location ID. They are <span className="font-semibold">not real scannable QR codes</span>. For physical scanning, integrate a QR library like <code className="font-mono text-[10px] bg-amber-500/15 px-1 rounded">qrcode</code>.
+            </p>
+          </div>
         </CardContent>
       </Card>
 

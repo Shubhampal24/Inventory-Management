@@ -12,21 +12,24 @@ function RackCell({ location, onClick, rackCellState }) {
   const isReorder = rackCellState === "reorder"
   const isCritical = rackCellState === "empty-crit"
   const isAvailable = rackCellState === "available"
+  const isAllocated = rackCellState === "allocated"
 
   const stateStyles = {
-    occupied: "border-blue-500/40 bg-blue-500/10 hover:border-blue-400 hover:bg-blue-500/20 text-blue-950 dark:text-blue-100",
-    available: "border-emerald-500/30 bg-emerald-500/5 hover:border-emerald-400/60 hover:bg-emerald-500/15 text-emerald-950 dark:text-emerald-200",
-    reorder: "border-amber-500/40 bg-amber-500/10 hover:border-amber-400 hover:bg-amber-500/20 text-amber-950 dark:text-amber-100",
-    "empty-crit": "border-red-500/40 bg-red-500/10 hover:border-red-400 hover:bg-red-500/20 text-red-950 dark:text-red-100",
-    unassigned: "border-border/40 bg-secondary/10 hover:border-border text-muted-foreground",
+    occupied:    "border-blue-500/40 bg-blue-500/10 hover:border-blue-400 hover:bg-blue-500/20 text-blue-950 dark:text-blue-100",
+    available:   "border-emerald-500/30 bg-emerald-500/5 hover:border-emerald-400/60 hover:bg-emerald-500/15 text-emerald-950 dark:text-emerald-200",
+    allocated:   "border-purple-500/40 bg-purple-500/8 hover:border-purple-400 hover:bg-purple-500/15 text-purple-950 dark:text-purple-100",
+    reorder:     "border-amber-500/40 bg-amber-500/10 hover:border-amber-400 hover:bg-amber-500/20 text-amber-950 dark:text-amber-100",
+    "empty-crit":"border-red-500/40 bg-red-500/10 hover:border-red-400 hover:bg-red-500/20 text-red-950 dark:text-red-100",
+    unassigned:  "border-border/40 bg-secondary/10 hover:border-border text-muted-foreground",
   }[rackCellState] || "border-border/40 bg-secondary/10 hover:border-border text-muted-foreground"
 
   const dotColors = {
-    occupied: "bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.6)]",
-    available: "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]",
-    reorder: "bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.6)] animate-pulse",
-    "empty-crit": "bg-red-400 shadow-[0_0_8px_rgba(248,113,113,0.6)] animate-pulse",
-    unassigned: "bg-muted-foreground/30",
+    occupied:    "bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.6)]",
+    available:   "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]",
+    allocated:   "bg-purple-400 shadow-[0_0_8px_rgba(168,85,247,0.6)]",
+    reorder:     "bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.6)] animate-pulse",
+    "empty-crit":"bg-red-400 shadow-[0_0_8px_rgba(248,113,113,0.6)] animate-pulse",
+    unassigned:  "bg-muted-foreground/30",
   }[rackCellState] || "bg-muted-foreground/30"
 
   const slotLabel = location.slot.startsWith("A") || location.slot.startsWith("B") || location.slot.startsWith("C") || location.slot.startsWith("D")
@@ -101,6 +104,13 @@ export default function RackMap() {
   const rackLocations = getLocationsForRack(selectedRack)
   const currentRack = racks.find(r => r.id === selectedRack)
 
+  // UX-003: Auto-select first rack if selectedRack doesn't exist (e.g. after archive/delete)
+  React.useEffect(() => {
+    if (racks.length > 0 && !currentRack) {
+      setSelectedRack(racks[0].id)
+    }
+  }, [racks, currentRack, setSelectedRack])
+
   // Group: bay -> level -> slots (strictly derived from real locations)
   const bays = React.useMemo(() => {
     const map = {}
@@ -130,10 +140,11 @@ export default function RackMap() {
 
   // Legend items
   const legend = [
-    { label: "Available", dot: "bg-emerald-400" },
-    { label: "Occupied", dot: "bg-blue-400" },
-    { label: "Reserved / Alert", dot: "bg-amber-400" },
-    { label: "Critical Empty", dot: "bg-red-400" },
+    { label: "Available",   dot: "bg-emerald-400" },
+    { label: "Allocated",   dot: "bg-purple-400" },
+    { label: "Occupied",    dot: "bg-blue-400" },
+    { label: "Reorder Alert",dot: "bg-amber-400" },
+    { label: "Critical Empty",dot:"bg-red-400" },
   ]
 
   // Levels for this rack in standard descending order
@@ -465,13 +476,13 @@ export default function RackMap() {
                     <div className="p-2.5 rounded-lg bg-card/60 border border-border/40">
                       <p className="text-muted-foreground text-[10px]">Total Stock IN</p>
                       <p className="text-xs font-bold font-mono text-emerald-400 mt-0.5 flex items-center gap-1">
-                        <ArrowDownRight size={12} /> {cellInv.stockIn} {cellInv.unit}
+                        <ArrowUpRight size={12} /> {cellInv.stockIn} {cellInv.unit}
                       </p>
                     </div>
                     <div className="p-2.5 rounded-lg bg-card/60 border border-border/40">
                       <p className="text-muted-foreground text-[10px]">Total Stock OUT</p>
-                      <p className="text-xs font-bold font-mono text-blue-400 mt-0.5 flex items-center gap-1">
-                        <ArrowUpRight size={12} /> {cellInv.stockOut} {cellInv.unit}
+                      <p className="text-xs font-bold font-mono text-red-400 mt-0.5 flex items-center gap-1">
+                        <ArrowDownRight size={12} /> {cellInv.stockOut} {cellInv.unit}
                       </p>
                     </div>
                   </div>
@@ -490,7 +501,7 @@ export default function RackMap() {
                         <div className="flex items-center gap-2">
                           <span className={cn(
                             "px-1.5 py-0.5 rounded text-[9px] font-bold",
-                            m.type === "IN" ? "bg-emerald-500/20 text-emerald-400" : "bg-blue-500/20 text-blue-400"
+                            m.type === "IN" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"
                           )}>
                             {m.type}
                           </span>
