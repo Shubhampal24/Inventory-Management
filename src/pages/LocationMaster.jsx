@@ -28,14 +28,29 @@ export default function LocationMaster() {
   const [globalAssignOpen, setGlobalAssignOpen] = React.useState(false)
   const [assignOpen, setAssignOpen] = React.useState(null) // locationId
   const [assignMatId, setAssignMatId] = React.useState("")
+  const [assignSearch, setAssignSearch] = React.useState("")
   const [newLoc, setNewLoc] = React.useState({ rack: "R01", bay: 1, level: "GL1", slot: "A", materialId: "", batch: "", notes: "" })
-  
+
+  const cleanAssignMatId = assignMatId ? (assignMatId.includes(" (") ? assignMatId.split(" (")[0].trim() : assignMatId.trim()) : ""
+  const selectedAssignMat = materials.find(m => m.id === cleanAssignMatId || m.id === assignMatId)
+
+  const assignFilteredMaterials = materials.filter(m => {
+    if (!assignSearch.trim()) return true
+    const term = assignSearch.toLowerCase()
+    const name = (m.name || m.description || "").toLowerCase()
+    const id = (m.id || "").toLowerCase()
+    const cat = (m.category || "").toLowerCase()
+    return id.includes(term) || name.includes(term) || cat.includes(term)
+  })
+
   // Global Assign State
   const [gaMat, setGaMat] = React.useState("")
   const [gaRack, setGaRack] = React.useState("")
   const [gaBay, setGaBay] = React.useState("")
   const [gaLevel, setGaLevel] = React.useState("")
   const [gaSlot, setGaSlot] = React.useState("")
+
+  const gaSelectedMat = materials.find(m => m.id === gaMat)
 
   const filtered = locations.filter(l => {
     const q = search.toLowerCase()
@@ -258,25 +273,103 @@ export default function LocationMaster() {
       </Dialog>
 
       {/* Assign Material */}
-      <Dialog open={!!assignOpen} onOpenChange={() => { setAssignOpen(null); setAssignMatId("") }}>
-        <DialogContent>
+      <Dialog open={!!assignOpen} onOpenChange={() => { setAssignOpen(null); setAssignMatId(""); setAssignSearch("") }}>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Assign Material</DialogTitle>
-            <DialogDescription>Assign a material to <span className="font-mono text-primary">{assignOpen}</span></DialogDescription>
+            <DialogDescription>
+              Assign a material to <span className="font-mono font-semibold text-primary">{assignOpen}</span>
+            </DialogDescription>
           </DialogHeader>
           <div className="px-6 space-y-4 max-h-[70vh] overflow-y-auto">
-            <div className="space-y-1.5">
-              <Label>Select Material</Label>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>Select Material</Label>
+                {selectedAssignMat && (
+                  <span className="text-xs text-primary font-mono font-medium">
+                    {selectedAssignMat.id}
+                  </span>
+                )}
+              </div>
+
+              {/* Search filter input */}
+              <div className="relative">
+                <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+                <Input
+                  placeholder="Type to filter by name, ID or category..."
+                  value={assignSearch}
+                  onChange={e => setAssignSearch(e.target.value)}
+                  className="pl-8 h-8 text-xs bg-secondary/30"
+                />
+              </div>
+
               <Select value={assignMatId} onValueChange={setAssignMatId}>
-                <SelectTrigger><SelectValue placeholder="Choose material..." /></SelectTrigger>
-                <SelectContent>
-                  {materials.map(m => <SelectItem key={m.id} value={m.id}>{m.id} — {m.description}</SelectItem>)}
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Choose material...">
+                    {selectedAssignMat
+                      ? `${selectedAssignMat.id} — ${selectedAssignMat.name || selectedAssignMat.description}`
+                      : undefined}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent className="max-h-60">
+                  {assignFilteredMaterials.map(m => (
+                    <SelectItem key={m.id} value={m.id}>
+                      <div className="flex items-center justify-between gap-3 w-full py-0.5">
+                        <div className="flex items-center gap-2 truncate">
+                          <span className="font-mono font-semibold text-primary shrink-0">{m.id}</span>
+                          <span className="text-foreground/90 truncate font-medium">{m.name || m.description}</span>
+                        </div>
+                        {m.category && (
+                          <span className="text-[10px] uppercase font-semibold tracking-wider text-muted-foreground bg-secondary/80 px-1.5 py-0.5 rounded shrink-0">
+                            {m.category}
+                          </span>
+                        )}
+                      </div>
+                    </SelectItem>
+                  ))}
+                  {assignFilteredMaterials.length === 0 && (
+                    <div className="p-3 text-center text-xs text-muted-foreground">
+                      No materials found matching "{assignSearch}"
+                    </div>
+                  )}
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Material Details Card */}
+            {selectedAssignMat ? (
+              <div className="rounded-xl border border-primary/20 bg-primary/5 p-3.5 space-y-2.5 animate-fade-in">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Material Name & Info</span>
+                  <CategoryBadge category={selectedAssignMat.category} />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-foreground leading-snug">
+                    {selectedAssignMat.name || selectedAssignMat.description}
+                  </p>
+                  <p className="font-mono text-xs text-primary font-medium mt-0.5">
+                    Code: {selectedAssignMat.id}
+                  </p>
+                </div>
+                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border/40 text-xs text-muted-foreground">
+                  <div>
+                    <span>Unit: </span>
+                    <span className="font-medium text-foreground">{selectedAssignMat.unit || "PCS"}</span>
+                  </div>
+                  <div>
+                    <span>Reorder Level: </span>
+                    <span className="font-mono font-medium text-foreground">{selectedAssignMat.reorderLevel ?? "—"}</span>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="rounded-lg border border-dashed border-border/70 p-3 text-center text-xs text-muted-foreground">
+                Select a material above to preview its full details
+              </div>
+            )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => { setAssignOpen(null); setAssignMatId("") }}>Cancel</Button>
+            <Button variant="outline" onClick={() => { setAssignOpen(null); setAssignMatId(""); setAssignSearch("") }}>Cancel</Button>
             <Button onClick={handleAssign}>Assign</Button>
           </DialogFooter>
         </DialogContent>
@@ -347,7 +440,10 @@ export default function LocationMaster() {
             
             {gaSlot && gaSlot !== "none" && (
               <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/30 p-3 mt-2">
-                <p className="text-xs text-muted-foreground">Will assign {gaMat} to:</p>
+                <p className="text-xs text-muted-foreground">
+                  Will assign <span className="font-semibold text-foreground">{gaMat}</span>
+                  {gaSelectedMat ? ` (${gaSelectedMat.name || gaSelectedMat.description})` : ""} to:
+                </p>
                 <p className="font-mono font-bold text-emerald-400 text-lg mt-0.5">{gaSlot}</p>
               </div>
             )}

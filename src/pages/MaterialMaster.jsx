@@ -161,16 +161,16 @@ export default function MaterialMaster() {
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="px-6 space-y-4 max-h-[70vh] overflow-y-auto">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label>Material ID <span className="text-destructive">*</span></Label>
+                <Label className="flex items-center h-5">Material ID <span className="text-destructive ml-0.5">*</span></Label>
                 <Input value={form.id} onChange={e => setForm(f => ({ ...f, id: e.target.value.toUpperCase() }))}
-                  placeholder="e.g. MAT050" disabled={!!editing} className="font-mono" required />
+                  placeholder="e.g. MAT050" disabled={!!editing} className="font-mono w-full" required />
               </div>
               <div className="space-y-1.5">
-                <Label>Unit</Label>
+                <Label className="flex items-center h-5">Unit</Label>
                 <Select value={form.unit} onValueChange={v => setForm(f => ({ ...f, unit: v }))}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                   <SelectContent>{UNITS.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
@@ -183,17 +183,17 @@ export default function MaterialMaster() {
               <Label>Description</Label>
               <Input value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Optional detailed description" />
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label>Category <span className="text-destructive">*</span></Label>
+                <Label className="flex items-center h-5">Category <span className="text-destructive ml-0.5">*</span></Label>
                 <Select value={form.category} onValueChange={v => setForm(f => ({ ...f, category: v }))} required>
-                  <SelectTrigger><SelectValue placeholder="Select Category" /></SelectTrigger>
+                  <SelectTrigger className="w-full"><SelectValue placeholder="Select Category" /></SelectTrigger>
                   <SelectContent>{CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
               <div className="space-y-1.5">
-                <Label className="flex items-center gap-1.5">
-                  Reorder Level
+                <Label className="flex items-center gap-1.5 h-5">
+                  <span>Reorder Level</span>
                   <div className="group relative flex items-center">
                     <Info size={14} className="text-muted-foreground cursor-help" />
                     <div className="absolute bottom-full sm:left-1/2 sm:-translate-x-1/2 right-0 mb-2 hidden w-56 p-2 bg-popover text-popover-foreground text-xs rounded shadow-xl border border-border group-hover:block z-50 text-center">
@@ -201,7 +201,7 @@ export default function MaterialMaster() {
                     </div>
                   </div>
                 </Label>
-                <Input type="number" min="0" value={form.reorderLevel} onChange={e => setForm(f => ({ ...f, reorderLevel: e.target.value }))} />
+                <Input type="number" min="0" value={form.reorderLevel} onChange={e => setForm(f => ({ ...f, reorderLevel: e.target.value }))} className="w-full" />
               </div>
             </div>
 

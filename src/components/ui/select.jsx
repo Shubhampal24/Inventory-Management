@@ -55,9 +55,10 @@ export function SelectTrigger({ className, children }) {
   )
 }
 
-export function SelectValue({ placeholder }) {
+export function SelectValue({ placeholder, children, className }) {
   const { value } = React.useContext(SelectContext)
-  return <span className={value ? "" : "text-muted-foreground"}>{value || placeholder}</span>
+  const display = children !== undefined && children !== null ? children : (value || placeholder)
+  return <span className={cn(!value && !children ? "text-muted-foreground" : "truncate", className)}>{display}</span>
 }
 
 export function SelectContent({ className, children }) {
